@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Build with Claude — 全端 AI 應用開發課程</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0f;
+  --bg2: #111118;
+  --bg3: #18181f;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.13);
+  --text: #e8e8f0;
+  --text2: #8888a0;
+  --text3: #55556a;
+  --accent: #c8f055;
+  --accent2: #a0d040;
+  --purple: #9b8bff;
+  --teal: #4de8c2;
+  --coral: #ff7a5c;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Sora', sans-serif;
+  font-size: 15px;
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+/* NOISE TEXTURE */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.4;
+}
+
+/* GRID LINES */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 80px 80px;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.5;
+}
+
+.container { max-width: 1100px; margin: 0 auto; padding: 0 32px; position: relative; z-index: 1; }
+
+/* NAV */
+nav {
+  position: fixed; top: 0; left: 0; right: 0;
+  z-index: 100;
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(20px);
+  background: rgba(10,10,15,0.85);
+}
+.nav-inner {
+  max-width: 1100px; margin: 0 auto; padding: 0 32px;
+  display: flex; align-items: center; justify-content: space-between;
+  height: 60px;
+}
+.nav-logo {
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  color: var(--accent);
+  letter-spacing: 0.05em;
+  text-decoration: none;
+}
+.nav-links { display: flex; gap: 32px; }
+.nav-links a {
+  font-size: 13px; color: var(--text2); text-decoration: none;
+  transition: color 0.2s;
+}
+.nav-links a:hover { color: var(--text); }
+
+/* HERO */
+.hero {
+  min-height: 100vh;
+  display: flex; flex-direction: column; justify-content: center;
+  padding: 120px 0 80px;
+}
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px; letter-spacing: 0.1em;
+  color: var(--accent);
+  border: 1px solid rgba(200,240,85,0.25);
+  padding: 6px 14px;
+  border-radius: 2px;
+  margin-bottom: 36px;
+}
+.hero-badge span { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; display: inline-block; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+h1 {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(46px, 7vw, 90px);
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  margin-bottom: 28px;
+}
+h1 em { font-style: italic; color: var(--accent); }
+
+.hero-desc {
+  max-width: 560px;
+  font-size: 17px;
+  color: var(--text2);
+  line-height: 1.75;
+  margin-bottom: 48px;
+}
+
+.hero-cta { display: flex; gap: 14px; flex-wrap: wrap; }
+.btn-primary {
+  background: var(--accent);
+  color: #0a0a0f;
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  padding: 14px 28px;
+  border: none; cursor: pointer;
+  border-radius: 2px;
+  text-decoration: none;
+  transition: background 0.2s, transform 0.15s;
+}
+.btn-primary:hover { background: var(--accent2); transform: translateY(-1px); }
+.btn-outline {
+  background: transparent;
+  color: var(--text2);
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  padding: 14px 28px;
+  border: 1px solid var(--border2);
+  cursor: pointer;
+  border-radius: 2px;
+  text-decoration: none;
+  transition: border-color 0.2s, color 0.2s;
+}
+.btn-outline:hover { border-color: var(--text2); color: var(--text); }
+
+/* STATS */
+.stats {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  margin: 80px 0;
+  overflow: hidden;
+}
+.stat {
+  background: var(--bg2);
+  padding: 32px 36px;
+}
+.stat-num {
+  font-family: 'DM Serif Display', serif;
+  font-size: 42px;
+  color: var(--text);
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.stat-num span { color: var(--accent); }
+.stat-label { font-size: 12px; color: var(--text3); letter-spacing: 0.06em; font-family: 'DM Mono', monospace; }
+
+/* SECTION LABEL */
+.section-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: var(--text3);
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+
+/* PHASE HEADER */
+.phase-header {
+  display: flex; align-items: center; gap: 20px;
+  margin: 72px 0 32px;
+}
+.phase-num {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+  border: 1px solid rgba(200,240,85,0.2);
+  padding: 4px 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+.phase-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 26px;
+  color: var(--text);
+}
+.phase-line { flex: 1; height: 1px; background: var(--border); }
+
+/* LESSON CARDS */
+.lessons-grid { display: flex; flex-direction: column; gap: 2px; }
+
+.lesson-item {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+.lesson-item:hover { border-color: var(--border2); }
+
+.lesson-top {
+  display: grid;
+  grid-template-columns: 64px 1fr auto;
+  align-items: center;
+  gap: 24px;
+  padding: 24px 28px;
+  cursor: pointer;
+  text-decoration: none;
+}
+.lesson-num {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--text3);
+  letter-spacing: 0.08em;
+}
+.lesson-info {}
+.lesson-title {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text);
+  margin-bottom: 4px;
+  transition: color 0.2s;
+}
+.lesson-item:hover .lesson-title { color: var(--accent); }
+.lesson-sub { font-size: 12px; color: var(--text3); }
+.lesson-meta { display: flex; gap: 8px; align-items: center; }
+.lesson-tag {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  padding: 3px 8px;
+  border-radius: 2px;
+  letter-spacing: 0.04em;
+}
+.tag-build { background: rgba(77,232,194,0.1); color: var(--teal); border: 1px solid rgba(77,232,194,0.2); }
+.tag-ai { background: rgba(155,139,255,0.1); color: var(--purple); border: 1px solid rgba(155,139,255,0.2); }
+.tag-deploy { background: rgba(255,122,92,0.1); color: var(--coral); border: 1px solid rgba(255,122,92,0.2); }
+.arrow {
+  width: 20px; height: 20px;
+  color: var(--text3);
+  flex-shrink: 0;
+  font-size: 14px;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* STACK ROW */
+.lesson-stack {
+  padding: 0 28px 20px 116px;
+  display: flex; flex-wrap: wrap; gap: 6px;
+}
+.stack-chip {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: var(--text3);
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  padding: 3px 9px;
+  border-radius: 2px;
+  letter-spacing: 0.04em;
+}
+
+/* TECH SECTION */
+.tech-section { margin: 80px 0; }
+.tech-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 28px;
+}
+.tech-item {
+  background: var(--bg2);
+  padding: 24px 28px;
+}
+.tech-name {
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+.tech-desc { font-size: 12px; color: var(--text3); }
+
+/* WHAT YOU BUILD */
+.builds-section { margin: 80px 0; }
+.builds-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 28px; }
+.build-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 28px;
+  position: relative;
+  overflow: hidden;
+}
+.build-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 2px;
+}
+.build-card:nth-child(1)::before { background: var(--teal); }
+.build-card:nth-child(2)::before { background: var(--purple); }
+.build-card:nth-child(3)::before { background: var(--coral); }
+.build-card:nth-child(4)::before { background: var(--accent); }
+.build-card:nth-child(5)::before { background: var(--teal); }
+.build-card:nth-child(6)::before { background: var(--purple); }
+.build-num {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: var(--text3);
+  letter-spacing: 0.08em;
+  margin-bottom: 14px;
+}
+.build-name {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+.build-desc { font-size: 12px; color: var(--text3); line-height: 1.6; }
+
+/* START CTA */
+.cta-section {
+  margin: 80px 0 120px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 64px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 48px;
+}
+.cta-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 36px;
+  color: var(--text);
+  margin-bottom: 12px;
+}
+.cta-desc { font-size: 14px; color: var(--text2); max-width: 480px; }
+
+/* FOOTER */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 32px;
+  text-align: center;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--text3);
+  letter-spacing: 0.06em;
+  position: relative; z-index: 1;
+}
+
+/* ANIMATIONS */
+.fade-up {
+  opacity: 0; transform: translateY(24px);
+  animation: fadeUp 0.7s ease forwards;
+}
+@keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+.delay-1 { animation-delay: 0.1s; }
+.delay-2 { animation-delay: 0.2s; }
+.delay-3 { animation-delay: 0.3s; }
+.delay-4 { animation-delay: 0.45s; }
+
+@media (max-width: 768px) {
+  .stats { grid-template-columns: 1fr; }
+  .builds-grid { grid-template-columns: 1fr; }
+  .cta-section { grid-template-columns: 1fr; }
+  .lesson-top { grid-template-columns: 48px 1fr; }
+  .lesson-meta { display: none; }
+  .lesson-stack { padding-left: 72px; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a class="nav-logo" href="index.html">BUILD_WITH_CLAUDE</a>
+    <div class="nav-links">
+      <a href="#curriculum">課程大綱</a>
+      <a href="#stack">技術棧</a>
+      <a href="#builds">成品展示</a>
+      <a href="class1.html">開始學習</a>
+    </div>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="container">
+    <div class="hero-badge fade-up"><span></span>10 堂課 · 10 個真實作品</div>
+    <h1 class="fade-up delay-1">Build real<br><em>AI apps</em><br>that ship.</h1>
+    <p class="hero-desc fade-up delay-2">
+      從旅遊規劃、餐廳點餐到 Tesla 風格叫車系統。<br>
+      每一堂課都有完整成品，不是 demo，是真的可以給用戶用的應用。
+    </p>
+    <div class="hero-cta fade-up delay-3">
+      <a href="class1.html" class="btn-primary">開始第一堂課</a>
+      <a href="#curriculum" class="btn-outline">查看課程大綱</a>
+    </div>
+
+    <div class="stats fade-up delay-4">
+      <div class="stat">
+        <div class="stat-num">10<span>x</span></div>
+        <div class="stat-label">真實可上線專案</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num"><span>#</span>01</div>
+        <div class="stat-label">技術棧：Next.js + Supabase + Claude</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">0<span>→</span>∞</div>
+        <div class="stat-label">從架構設計到金流上線</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="curriculum">
+  <div class="container">
+    <div class="section-label">課程大綱</div>
+
+    <!-- Phase 1 -->
+    <div class="phase-header">
+      <div class="phase-num">PHASE 01</div>
+      <div class="phase-title">全端基礎 × AI 整合</div>
+      <div class="phase-line"></div>
+    </div>
+    <div class="lessons-grid">
+      <div class="lesson-item">
+        <a class="lesson-top" href="class1.html">
+          <div class="lesson-num">CLASS_01</div>
+          <div class="lesson-info">
+            <div class="lesson-title">全端架構設計 × Claude API 深度整合</div>
+            <div class="lesson-sub">搭起可上線 AI 應用的完整骨架</div>
+          </div>
+          <div class="lesson-meta">
+            <span class="lesson-tag tag-ai">AI Core</span>
+            <div class="arrow">→</div>
+          </div>
+        </a>
+        <div class="lesson-stack">
+          <span class="stack-chip">Next.js 15</span>
+          <span class="stack-chip">TypeScript</span>
+          <span class="stack-chip">Supabase</span>
+          <span class="stack-chip">Claude API</span>
+          <span class="stack-chip">Vercel</span>
+        </div>
+      </div>
+
+      <div class="lesson-item">
+        <a class="lesson-top" href="class2.html">
+          <div class="lesson-num">CLASS_02</div>
+          <div class="lesson-info">
+            <div class="lesson-title">AI 智慧旅遊規劃平台</div>
+            <div class="lesson-sub">對話式行程生成 + 地圖 + 即時航班查詢</div>
+          </div>
+          <div class="lesson-meta">
+            <span class="lesson-tag tag-build">Full Build</span>
+            <div class="arrow">→</div>
+          </div>
+        </a>
+        <div class="lesson-stack">
+          <span class="stack-chip">Tool Use</span>
+          <span class="stack-chip">Google Maps API</span>
+          <span class="stack-chip">Amadeus API</span>
+          <span class="stack-chip">React Query</span>
+        </div>
+      </div>
+
+      <div class="lesson-item">
+        <a class="lesson-top" href="class3.html">
+          <div class="lesson-num">CLASS_03</div>
+          <div class="lesson-info">
+            <div class="lesson-title">智慧餐飲點餐系統</div>
+            <div class="lesson-sub">AI 推薦 + 即時庫存 + 語音點餐 + 廚房顯示板</div>
+          </div>
+          <div class="lesson-meta">
+            <span class="lesson-tag tag-build">Full Build</span>
+            <div class="arrow">→</div>
+          </div>
+        </a>
+        <div class="lesson-stack">
+          <span class="stack-chip">Supabase Realtime</span>
+          <span class="stack-chip">Web Speech API</span>
+          <span class="stack-chip">Stripe</span>
+          <span class="stack-chip">WebSocket</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Phase 2 -->
+    <div class="phase-header">
+      <div class="phase-num">PHASE 02</div>
+      <div class="phase-title">進階 AI × 真實外部 API</div>
+      <div class="phase-line"></div>
+    </div>
+    <div class="lessons-grid">
+      <div class="lesson-item">
+        <a class="lesson-top" href="class4.html">
+          <div class="lesson-num">CLASS_04</div>
+          <div class="lesson-info">
+            <div class="lesson-title">Tesla 風格智慧叫車系統</div>
+            <div class="lesson-sub">即時派車 + GPS 追蹤 + AI 客服 + 動態定價</div>
+          </div>
+          <div class="lesson-meta">
+            <span class="lesson-tag tag-build">Full Build</span>
+            <div class="arrow">→</div>
+          </div>
+        </a>
+        <div class="lesson-stack">
+          <span class="stack-chip">Google Maps Platform</span>
+          <span class="stack-chip">Socket.io</span>
+          <span class="stack-chip">Geolocation</span>
+          <span class="stack-chip">Stripe</span>
+        </div>
+      </div>
+
+      <div class="lesson-item">
+        <a class="lesson-top" href="class5.html">
+          <div class="lesson-num">CLASS_05</div>
+          <div class="lesson-info">
+            <div class="lesson-title">RAG 知識庫 × 企業 AI 客服機器人</div>
+            <div class="lesson-sub">上傳文件 → 即時回答，準確度 95%+</div>
+          </div>
+          <div class="lesson-meta">
+            <span class="lesson-tag tag-ai">AI Core</span>
+            <div class="arrow">→</div>
+          </div>
+        </a>
+        <div class="lesson-stack">
+          <span class="stack-chip">pgvector</span>
+          <span class="stack-chip">Embeddings</span>
+          <span class="stack-chip">LangChain</span>
+          <span class="stack-chip">PDF.js</span>
+        </div>
+      </div>
+
+      <div class="lesson-item">
+        <a class="lesson-top" href="class6.html">
+          <div class="lesson-num">CLASS_06</div>
+          <div class="lesson-info">
+            <div class="lesson-title">AI Agent 自動化工作流引擎</div>
+            <div class="lesson-sub">讓 Claude 自己規劃任務、呼叫工具、完成複雜工作</div>
+          </div>
+          <div class="lesson-meta">
+            <span class="lesson-tag tag-ai">AI Core</span>
+            <div class="arrow">→</div>
+          </div>
+        </a>
+        <div class="lesson-stack">
+          <span class="stack-chip">ReAct Loop</span>
+          <span class="stack-chip">Puppeteer</span>
+          <span class="stack-chip">Bull Queue</span>
+          <span class="stack-chip">Redis</span>
+        </div>
+      </div>
+
+      <div class="lesson-item">
+        <a class="lesson-top" href="class7.html">
+          <div class="lesson-num">CLASS_07</div>
+          <div class="lesson-info">
+            <div class="lesson-title">多模態 AI：圖像 + 語音 + 文字</div>
+            <div class="lesson-sub">拍照點餐、拍景點導覽，多模態融合應用</div>
+          </div>
+          <div class="lesson-meta">
+            <span class="lesson-tag tag-ai">AI Core</span>
+            <div class="arrow">→</div>
+          </div>
+        </a>
+        <div class="lesson-stack">
+          <span class="stack-chip">Claude Vision</span>
+          <span class="stack-chip">Whisper STT</span>
+          <span class="stack-chip">ElevenLabs TTS</span>
+          <span class="stack-chip">Camera API</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Phase 3 -->
+    <div class="phase-header">
+      <div class="phase-num">PHASE 03</div>
+      <div class="phase-title">商業化 × 上線</div>
+      <div class="phase-line"></div>
+    </div>
+    <div class="lessons-grid">
+      <div class="lesson-item">
+        <a class="lesson-top" href="class8.html">
+          <div class="lesson-num">CLASS_08</div>
+          <div class="lesson-info">
+            <div class="lesson-title">效能優化 × 資安 × 監控</div>
+            <div class="lesson-sub">讓 AI 應用撐住真實流量，不洩漏資料</div>
+          </div>
+          <div class="lesson-meta">
+            <span class="lesson-tag tag-deploy">Ops</span>
+            <div class="arrow">→</div>
+          </div>
+        </a>
+        <div class="lesson-stack">
+          <span class="stack-chip">Rate Limiting</span>
+          <span class="stack-chip">LangSmith</span>
+          <span class="stack-chip">Sentry</span>
+          <span class="stack-chip">Zod</span>
+        </div>
+      </div>
+
+      <div class="lesson-item">
+        <a class="lesson-top" href="class9.html">
+          <div class="lesson-num">CLASS_09</div>
+          <div class="lesson-info">
+            <div class="lesson-title">SaaS 訂閱制 × 多租戶架構</div>
+            <div class="lesson-sub">讓你的 AI 應用收月費，自動化管理客戶</div>
+          </div>
+          <div class="lesson-meta">
+            <span class="lesson-tag tag-deploy">Ops</span>
+            <div class="arrow">→</div>
+          </div>
+        </a>
+        <div class="lesson-stack">
+          <span class="stack-chip">Stripe Billing</span>
+          <span class="stack-chip">Multi-tenant</span>
+          <span class="stack-chip">Webhook</span>
+          <span class="stack-chip">Resend</span>
+        </div>
+      </div>
+
+      <div class="lesson-item">
+        <a class="lesson-top" href="class10.html">
+          <div class="lesson-num">CLASS_10</div>
+          <div class="lesson-info">
+            <div class="lesson-title">綜合實戰：48 小時完整專案</div>
+            <div class="lesson-sub">Hackathon 模式，從 0 到上線的殺手級應用</div>
+          </div>
+          <div class="lesson-meta">
+            <span class="lesson-tag tag-build">Capstone</span>
+            <div class="arrow">→</div>
+          </div>
+        </a>
+        <div class="lesson-stack">
+          <span class="stack-chip">All Stack</span>
+          <span class="stack-chip">Product Hunt</span>
+          <span class="stack-chip">Portfolio</span>
+          <span class="stack-chip">Launch</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="stack" class="tech-section">
+  <div class="container">
+    <div class="section-label">技術棧</div>
+    <div class="tech-grid">
+      <div class="tech-item"><div class="tech-name">Next.js 15</div><div class="tech-desc">App Router, Server Actions</div></div>
+      <div class="tech-item"><div class="tech-name">TypeScript</div><div class="tech-desc">端對端型別安全</div></div>
+      <div class="tech-item"><div class="tech-name">Claude API</div><div class="tech-desc">Sonnet 4, Tool Use, Vision</div></div>
+      <div class="tech-item"><div class="tech-name">Supabase</div><div class="tech-desc">PostgreSQL, Auth, Realtime</div></div>
+      <div class="tech-item"><div class="tech-name">Stripe</div><div class="tech-desc">金流, Billing, Webhook</div></div>
+      <div class="tech-item"><div class="tech-name">Google Maps</div><div class="tech-desc">Directions, Places, Geocoding</div></div>
+      <div class="tech-item"><div class="tech-name">Socket.io</div><div class="tech-desc">即時通訊, WebSocket</div></div>
+      <div class="tech-item"><div class="tech-name">Vercel</div><div class="tech-desc">部署, Edge Functions</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="builds" class="builds-section">
+  <div class="container">
+    <div class="section-label">你會做出的成品</div>
+    <div class="builds-grid">
+      <div class="build-card">
+        <div class="build-num">PRODUCT 01</div>
+        <div class="build-name">AI 旅遊規劃平台</div>
+        <div class="build-desc">輸入目的地和預算，自動生成完整行程、地圖標記、可訂機票</div>
+      </div>
+      <div class="build-card">
+        <div class="build-num">PRODUCT 02</div>
+        <div class="build-name">語音餐廳點餐系統</div>
+        <div class="build-desc">顧客語音點餐，廚房即時顯示，AI 推薦菜色，完整金流</div>
+      </div>
+      <div class="build-card">
+        <div class="build-num">PRODUCT 03</div>
+        <div class="build-name">Tesla 風格叫車平台</div>
+        <div class="build-desc">乘客叫車、司機接單、GPS 追蹤、動態定價，全流程可跑通</div>
+      </div>
+      <div class="build-card">
+        <div class="build-num">PRODUCT 04</div>
+        <div class="build-name">企業 AI 客服機器人</div>
+        <div class="build-desc">上傳任何文件，立即能準確回答問題，可嵌入任何網站</div>
+      </div>
+      <div class="build-card">
+        <div class="build-num">PRODUCT 05</div>
+        <div class="build-name">自動化情報 Agent</div>
+        <div class="build-desc">每日自動蒐集競品資訊，AI 摘要後推送 Slack 報告</div>
+      </div>
+      <div class="build-card">
+        <div class="build-num">PRODUCT 06</div>
+        <div class="build-name">多模態旅遊助理 App</div>
+        <div class="build-desc">拍照翻譯菜單、識別景點、語音導覽，出國必備</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <div class="cta-section">
+      <div>
+        <div class="cta-title">準備好了嗎？</div>
+        <p class="cta-desc">十堂課後，你不只是會用 AI 工具的人，而是能用 AI 建造工具的工程師。</p>
+      </div>
+      <a href="class1.html" class="btn-primary">開始第一堂課 →</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    BUILD_WITH_CLAUDE &nbsp;·&nbsp; 10 CLASSES &nbsp;·&nbsp; 10 REAL PRODUCTS
+  </div>
+</footer>
+
+</body>
+</html>

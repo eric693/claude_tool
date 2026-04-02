@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Class 01 — 全端基礎架構 × Claude Code 加速工作流 | Build with Claude</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0f; --bg2: #111118; --bg3: #18181f;
+  --border: rgba(255,255,255,0.07); --border2: rgba(255,255,255,0.13);
+  --text: #e8e8f0; --text2: #8888a0; --text3: #55556a;
+  --accent: #c8f055; --accent2: #a0d040;
+  --purple: #9b8bff; --teal: #4de8c2; --coral: #ff7a5c;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Sora',sans-serif;font-size:15px;line-height:1.7;overflow-x:hidden}
+body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:80px 80px;pointer-events:none;z-index:0;opacity:0.4}
+
+nav{position:fixed;top:0;left:0;right:0;z-index:100;border-bottom:1px solid var(--border);backdrop-filter:blur(20px);background:rgba(10,10,15,0.88)}
+.nav-inner{max-width:1100px;margin:0 auto;padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:60px}
+.nav-logo{font-family:'DM Mono',monospace;font-size:13px;color:var(--accent);letter-spacing:.05em;text-decoration:none}
+.nav-right{display:flex;align-items:center;gap:24px}
+.nav-links{display:flex;gap:24px}
+.nav-links a{font-size:13px;color:var(--text2);text-decoration:none;transition:color .2s}
+.nav-links a:hover{color:var(--text)}
+.nav-class{font-family:'DM Mono',monospace;font-size:11px;color:var(--text3);letter-spacing:.08em}
+
+.layout{max-width:1100px;margin:0 auto;padding:100px 32px 80px;display:grid;grid-template-columns:220px 1fr;gap:56px;position:relative;z-index:1}
+
+.sidebar{position:sticky;top:80px;height:fit-content}
+.sidebar-label{font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);letter-spacing:.1em;margin-bottom:16px}
+.sidebar-nav{display:flex;flex-direction:column;gap:2px}
+.sidebar-nav a{font-size:12px;color:var(--text3);text-decoration:none;padding:7px 12px;border-radius:3px;border-left:2px solid transparent;transition:all .15s}
+.sidebar-nav a:hover{color:var(--text2);background:var(--bg3)}
+.sidebar-nav a.active{color:var(--accent);border-left-color:var(--accent);background:rgba(200,240,85,0.05)}
+.sidebar-sep{height:1px;background:var(--border);margin:14px 0}
+.sidebar-prev-next{display:flex;flex-direction:column;gap:8px}
+.sidebar-prev-next a{font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);text-decoration:none;letter-spacing:.05em;padding:7px 10px;border:1px solid var(--border);border-radius:3px;transition:all .15s}
+.sidebar-prev-next a:hover{border-color:var(--border2);color:var(--text2)}
+
+.class-badge{font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);letter-spacing:.1em;margin-bottom:20px;display:flex;align-items:center;gap:10px}
+.class-badge::after{content:'';flex:1;height:1px;background:rgba(200,240,85,0.2)}
+h1{font-family:'DM Serif Display',serif;font-size:clamp(32px,4vw,52px);line-height:1.1;letter-spacing:-.02em;margin-bottom:16px}
+h1 em{font-style:italic;color:var(--accent)}
+.class-desc{font-size:16px;color:var(--text2);line-height:1.75;margin-bottom:36px;max-width:640px}
+
+.outcome-box{background:rgba(77,232,194,0.05);border:1px solid rgba(77,232,194,0.2);border-radius:4px;padding:24px 28px;margin-bottom:48px}
+.outcome-label{font-family:'DM Mono',monospace;font-size:10px;color:var(--teal);letter-spacing:.1em;margin-bottom:10px}
+.outcome-text{font-size:14px;color:var(--text2);line-height:1.7}
+
+.stack-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:48px}
+.stack-pill{font-family:'DM Mono',monospace;font-size:11px;color:var(--text3);background:var(--bg3);border:1px solid var(--border);padding:5px 12px;border-radius:2px;letter-spacing:.04em}
+
+.section{margin-bottom:72px}
+.section-label{font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:20px;display:flex;align-items:center;gap:12px}
+.section-label::after{content:'';flex:1;height:1px;background:var(--border)}
+h2{font-family:'DM Serif Display',serif;font-size:28px;color:var(--text);margin-bottom:16px;letter-spacing:-.01em}
+h3{font-size:15px;font-weight:600;color:var(--text);margin-bottom:10px;margin-top:32px}
+h4{font-size:13px;font-weight:500;color:var(--text2);margin-bottom:8px;margin-top:20px;font-family:'DM Mono',monospace;letter-spacing:.04em}
+p{color:var(--text2);margin-bottom:16px;line-height:1.75}
+ul,ol{padding-left:20px;margin-bottom:16px}
+li{color:var(--text2);line-height:1.75;margin-bottom:4px}
+li strong{color:var(--text);font-weight:500}
+
+.code-block{background:var(--bg3);border:1px solid var(--border);border-radius:4px;margin:20px 0;overflow:hidden}
+.code-header{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--border);background:var(--bg2)}
+.code-lang{font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);letter-spacing:.08em}
+.code-file{font-family:'DM Mono',monospace;font-size:10px;color:var(--teal)}
+.code-copy{font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);cursor:pointer;background:none;border:1px solid var(--border);padding:3px 9px;border-radius:2px;transition:all .15s}
+.code-copy:hover{border-color:var(--border2);color:var(--text2)}
+pre{padding:20px;overflow-x:auto;font-family:'DM Mono',monospace;font-size:12px;line-height:1.75;tab-size:2}
+.k{color:#9b8bff}.s{color:#4de8c2}.c{color:#55556a;font-style:italic}.v{color:#c8f055}.f{color:#ff7a5c}.t{color:#e8e8f0}.o{color:#ffd700}
+
+.steps{display:flex;flex-direction:column;gap:2px;margin:20px 0}
+.step{display:grid;grid-template-columns:44px 1fr;gap:16px;background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:20px 24px;align-items:flex-start}
+.step-num{font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);letter-spacing:.06em;padding-top:3px}
+.step-title{font-size:14px;font-weight:500;color:var(--text);margin-bottom:6px}
+.step-desc{font-size:13px;color:var(--text2);line-height:1.65}
+
+.concepts{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:20px 0}
+.concept-card{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:20px 24px}
+.concept-title{font-family:'DM Mono',monospace;font-size:11px;color:var(--purple);letter-spacing:.06em;margin-bottom:8px}
+.concept-body{font-size:13px;color:var(--text2);line-height:1.65}
+
+.info-box{border-left:2px solid var(--accent);padding:14px 20px;background:rgba(200,240,85,0.04);border-radius:0 4px 4px 0;margin:20px 0}
+.info-box p{margin:0;font-size:13px;color:var(--text2)}
+.warn-box{border-left:2px solid var(--coral);padding:14px 20px;background:rgba(255,122,92,0.04);border-radius:0 4px 4px 0;margin:20px 0}
+.warn-box p{margin:0;font-size:13px;color:var(--text2)}
+.tip-box{border-left:2px solid var(--purple);padding:14px 20px;background:rgba(155,139,255,0.04);border-radius:0 4px 4px 0;margin:20px 0}
+.tip-box p{margin:0;font-size:13px;color:var(--text2)}
+
+.prompt-anatomy{background:var(--bg2);border:1px solid var(--border);border-radius:4px;overflow:hidden;margin:20px 0}
+.prompt-anatomy-header{padding:12px 20px;border-bottom:1px solid var(--border);font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);letter-spacing:.1em}
+.prompt-layer{display:grid;grid-template-columns:120px 1fr;gap:0;border-bottom:1px solid var(--border)}
+.prompt-layer:last-child{border-bottom:none}
+.prompt-layer-label{padding:14px 16px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.06em;border-right:1px solid var(--border);display:flex;align-items:flex-start;padding-top:16px}
+.prompt-layer-content{padding:14px 18px;font-size:13px;color:var(--text2);line-height:1.65}
+.label-role{color:var(--coral)}
+.label-context{color:var(--purple)}
+.label-task{color:var(--accent)}
+.label-format{color:var(--teal)}
+.label-constraint{color:var(--coral)}
+
+.deliverable{background:var(--bg2);border:1px solid rgba(200,240,85,0.2);border-radius:4px;padding:28px;margin:36px 0}
+.deliverable-label{font-family:'DM Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:.1em;margin-bottom:12px}
+.deliverable-title{font-size:17px;font-weight:500;color:var(--text);margin-bottom:8px}
+.deliverable-desc{font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:16px}
+.deliverable-checks{display:flex;flex-direction:column;gap:6px}
+.deliverable-check{font-size:13px;color:var(--text2);display:flex;gap:10px}
+.deliverable-check::before{content:'OK';color:var(--accent);font-family:'DM Mono',monospace;flex-shrink:0;font-size:10px;padding-top:3px}
+
+.next-card{display:flex;align-items:center;justify-content:space-between;background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:24px 28px;text-decoration:none;margin-top:48px;transition:border-color .2s}
+.next-card:hover{border-color:var(--accent)}
+.next-label{font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);letter-spacing:.1em;margin-bottom:6px}
+.next-title{font-size:15px;font-weight:500;color:var(--text)}
+.next-arrow{font-size:20px;color:var(--accent)}
+
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:20px 0}
+.col-card{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:20px 24px}
+.col-card-title{font-family:'DM Mono',monospace;font-size:11px;color:var(--teal);letter-spacing:.06em;margin-bottom:10px}
+.col-card p{font-size:13px;margin-bottom:0}
+
+.pattern-row{display:flex;flex-direction:column;gap:2px;margin:20px 0}
+.pattern{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:18px 22px}
+.pattern-name{font-family:'DM Mono',monospace;font-size:11px;color:var(--purple);letter-spacing:.06em;margin-bottom:6px}
+.pattern-desc{font-size:13px;color:var(--text2);line-height:1.6}
+
+@media(max-width:768px){.layout{grid-template-columns:1fr;padding:90px 20px 60px}.sidebar{display:none}.concepts{grid-template-columns:1fr}.two-col{grid-template-columns:1fr}.prompt-layer{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a class="nav-logo" href="index.html">BUILD_WITH_CLAUDE</a>
+    <div class="nav-right">
+      <span class="nav-class">CLASS 01 / 10</span>
+      <div class="nav-links">
+        <a href="index.html">大綱</a>
+        <a href="class2.html">下一堂 →</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-label">本堂內容</div>
+    <nav class="sidebar-nav">
+      <a href="#intro" class="active">課程目標</a>
+      <a href="#stack">技術選型</a>
+      <a href="#claude-code">Claude Code 工作流</a>
+      <a href="#claude-md">CLAUDE.md 設定</a>
+      <a href="#prompt-craft">System Prompt 設計</a>
+      <a href="#setup">環境建置</a>
+      <a href="#structure">專案架構</a>
+      <a href="#api-route">API Route 實作</a>
+      <a href="#streaming">Streaming 串流</a>
+      <a href="#auth-db">Auth + 資料庫</a>
+      <a href="#deploy">部署上線</a>
+      <a href="#deliverable">本堂成品</a>
+    </nav>
+    <div class="sidebar-sep"></div>
+    <div class="sidebar-prev-next">
+      <a href="index.html">← 課程總覽</a>
+      <a href="class2.html">Class 02 →</a>
+    </div>
+  </aside>
+
+  <main>
+    <div class="class-badge">CLASS_01 &nbsp;·&nbsp; FOUNDATION</div>
+    <h1>全端基礎架構<br><em>× Claude Code</em><br>加速工作流</h1>
+    <p class="class-desc">這堂課做兩件事：建立整個課程用到的全端骨架，並教你如何正確使用 Claude Code 把開發速度提升 3-5 倍。後者是大多數課程不會教的部分，但它決定你往後九堂課能跑多快。</p>
+
+    <div class="stack-row">
+      <span class="stack-pill">Next.js 15</span>
+      <span class="stack-pill">TypeScript</span>
+      <span class="stack-pill">Supabase</span>
+      <span class="stack-pill">Claude API</span>
+      <span class="stack-pill">Vercel</span>
+      <span class="stack-pill">Claude Code</span>
+      <span class="stack-pill">CLAUDE.md</span>
+    </div>
+
+    <div class="outcome-box">
+      <div class="outcome-label">LEARNING OUTCOME</div>
+      <div class="outcome-text">課程結束後，你同時擁有：(1) 一個可登入、可對話、有 Streaming 的 AI 應用骨架部署在 Vercel；(2) 一套 CLAUDE.md + System Prompt 設計方法，讓你能在幾分鐘內用 Claude Code 搭起後續任何模組，不需要重複解釋背景。</div>
+    </div>
+
+    <!-- TECH STACK -->
+    <div id="stack" class="section">
+      <div class="section-label">技術選型</div>
+      <h2>為什麼選這個組合？</h2>
+      <p>這不是隨機選的。每個技術都有明確的選用理由，也有明確的替代方案說明。</p>
+      <div class="concepts">
+        <div class="concept-card">
+          <div class="concept-title">Next.js 15 App Router</div>
+          <div class="concept-body">Server Components 讓 AI API 呼叫在伺服器端執行，API key 不洩漏到前端。Edge Runtime 讓 Streaming 延遲降到最低。Server Actions 讓你省掉寫 API route 的樣板代碼。</div>
+        </div>
+        <div class="concept-card">
+          <div class="concept-title">Supabase</div>
+          <div class="concept-body">PostgreSQL + Auth + Realtime + Storage + pgvector（後面 RAG 課用到）一包解決。免費額度夠整個課程用。最重要的是：Row Level Security 讓多用戶資料隔離不需要額外寫邏輯。</div>
+        </div>
+        <div class="concept-card">
+          <div class="concept-title">TypeScript</div>
+          <div class="concept-body">Claude API 回傳的結構複雜，Tool Use 的 JSON schema 更複雜。沒有型別保護，在第 5 堂課 RAG 的時候你會崩潰。TypeScript 是這個課程的隱性安全網。</div>
+        </div>
+        <div class="concept-card">
+          <div class="concept-title">Vercel</div>
+          <div class="concept-body">零設定 Streaming 支援。Edge Functions 讓 AI API 呼叫的冷啟動幾乎不存在。免費方案有 100GB 頻寬，足夠課程練習和小型上線。</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CLAUDE CODE WORKFLOW -->
+    <div id="claude-code" class="section">
+      <div class="section-label">Claude Code 工作流</div>
+      <h2>用 AI 建造 AI 應用</h2>
+      <p>Claude Code 是你在終端機裡的工程師夥伴。它能讀整個 codebase、寫程式、執行指令、除錯。但大多數人用法錯誤 — 他們把它當 ChatGPT，一次問一個問題。正確用法是給它任務、給它上下文、讓它自己跑。</p>
+
+      <div class="info-box"><p>Claude Code 安裝：<code>npm install -g @anthropic-ai/claude-code</code>，然後在專案根目錄執行 <code>claude</code> 即可。需要 Anthropic API key。</p></div>
+
+      <h3>Prompt 解剖：如何讓 Claude Code 真正懂你</h3>
+      <p>一個有效的 Claude Code prompt 由五個層次構成。少了任何一層，輸出品質就會明顯下降。</p>
+
+      <div class="prompt-anatomy">
+        <div class="prompt-anatomy-header">PROMPT ANATOMY — 五層結構</div>
+        <div class="prompt-layer">
+          <div class="prompt-layer-label label-role">ROLE</div>
+          <div class="prompt-layer-content">
+            <strong style="color:var(--text)">你是什麼</strong> — 定義 Claude 的身份和專業背景<br>
+            <span style="color:var(--text3);font-size:12px">範例：「你是一個精通 Next.js App Router 和 Supabase 的全端工程師」</span>
+          </div>
+        </div>
+        <div class="prompt-layer">
+          <div class="prompt-layer-label label-context">CONTEXT</div>
+          <div class="prompt-layer-content">
+            <strong style="color:var(--text)">現在在哪</strong> — 專案狀態、已存在的檔案、技術限制<br>
+            <span style="color:var(--text3);font-size:12px">範例：「這是一個 Next.js 15 專案，使用 App Router，src/ 目錄結構，已安裝 @anthropic-ai/sdk 和 @supabase/ssr」</span>
+          </div>
+        </div>
+        <div class="prompt-layer">
+          <div class="prompt-layer-label label-task">TASK</div>
+          <div class="prompt-layer-content">
+            <strong style="color:var(--text)">做什麼</strong> — 具體、可驗證的任務描述<br>
+            <span style="color:var(--text3);font-size:12px">範例：「在 src/app/api/chat/route.ts 建立一個 POST endpoint，接收 messages 陣列，呼叫 Claude API 並以 SSE 串流回傳」</span>
+          </div>
+        </div>
+        <div class="prompt-layer">
+          <div class="prompt-layer-label label-format">FORMAT</div>
+          <div class="prompt-layer-content">
+            <strong style="color:var(--text)">輸出長什麼樣</strong> — 期望的輸出格式和結構<br>
+            <span style="color:var(--text3);font-size:12px">範例：「直接輸出可執行的 TypeScript 程式碼，不需要解釋，包含所有 import」</span>
+          </div>
+        </div>
+        <div class="prompt-layer">
+          <div class="prompt-layer-label label-constraint">CONSTRAINT</div>
+          <div class="prompt-layer-content">
+            <strong style="color:var(--text)">不能做什麼</strong> — 明確的限制和邊界<br>
+            <span style="color:var(--text3);font-size:12px">範例：「不使用 any 型別，不使用 try-catch 包整個函式，錯誤要精確 throw 到對應的地方」</span>
+          </div>
+        </div>
+      </div>
+
+      <h3>實際範例對比</h3>
+      <div class="two-col">
+        <div class="col-card">
+          <div class="col-card-title">BAD PROMPT</div>
+          <p>「幫我寫一個聊天功能」</p>
+          <p>問題：沒有 role，沒有 context，task 模糊，不知道要產出什麼，Claude 會自己假設一堆東西然後全都猜錯。</p>
+        </div>
+        <div class="col-card">
+          <div class="col-card-title">GOOD PROMPT</div>
+          <p>「你是精通 Next.js 15 App Router 的工程師。這個專案用 @anthropic-ai/sdk 和 Supabase。在 src/app/api/chat/route.ts 建立 POST handler，接收 <code>&#123; messages: Message[], system?: string &#125;</code>，用 claude-sonnet-4-20250514，以 SSE 格式串流回傳，text delta 包在 <code>data: &#123;"text":"..."&#125;\n\n</code> 格式裡，結束送 <code>data: [DONE]</code>。只輸出程式碼。」</p>
+        </div>
+      </div>
+
+      <h3>給 Claude Code 的常用指令模式</h3>
+      <div class="pattern-row">
+        <div class="pattern">
+          <div class="pattern-name">IMPLEMENT</div>
+          <div class="pattern-desc">「實作 [功能]，在 [檔案路徑]，使用 [技術]，符合 [現有架構]。只輸出程式碼，不需要解釋。」</div>
+        </div>
+        <div class="pattern">
+          <div class="pattern-name">FIX</div>
+          <div class="pattern-desc">「這個錯誤：[貼上錯誤訊息]。相關檔案：[路徑]。找出根本原因並修正。不要改動無關的程式碼。」</div>
+        </div>
+        <div class="pattern">
+          <div class="pattern-name">REFACTOR</div>
+          <div class="pattern-desc">「把 [檔案] 裡的 [函式/模組] 重構成 [目標結構]。保持所有現有測試通過。不改變對外 API。」</div>
+        </div>
+        <div class="pattern">
+          <div class="pattern-name">EXPLAIN</div>
+          <div class="pattern-desc">「解釋 [程式碼/概念] 如何運作，假設我已知 [已知知識]，重點放在 [我不確定的部分]。」</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CLAUDE.MD -->
+    <div id="claude-md" class="section">
+      <div class="section-label">CLAUDE.md 設定</div>
+      <h2>讓 Claude Code 永遠記得你的專案</h2>
+      <p>CLAUDE.md 是放在專案根目錄的設定檔。Claude Code 每次啟動都會自動讀取它，讓你不需要每次重新解釋專案背景、技術限制、命名規範。</p>
+      <p>這是省下最多時間的單一最大優化。好的 CLAUDE.md 讓你節省的解釋時間累積下來是幾十小時。</p>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">MARKDOWN</span>
+          <span class="code-file">CLAUDE.md（專案根目錄）</span>
+          <button class="code-copy" onclick="copyCode(this)">copy</button>
+        </div>
+        <pre><span class="c"># 專案背景</span>
+<span class="t">這是一個 AI SaaS 應用，使用 Next.js 15 App Router + TypeScript + Supabase + Claude API。</span>
+<span class="t">目標：讓用戶可以登入並使用各種 AI 功能（對話、文件分析、行程規劃等）。</span>
+
+<span class="c"># 技術棧</span>
+<span class="t">- Framework: Next.js 15，App Router，src/ 目錄</span>
+<span class="t">- Language: TypeScript，strict mode</span>
+<span class="t">- Database: Supabase（PostgreSQL + Auth + Realtime）</span>
+<span class="t">- AI: @anthropic-ai/sdk，model = claude-sonnet-4-20250514</span>
+<span class="t">- Styling: Tailwind CSS v4</span>
+<span class="t">- Deploy: Vercel</span>
+
+<span class="c"># 目錄結構</span>
+<span class="t">src/app/api/         - API routes（所有後端邏輯）</span>
+<span class="t">src/app/(auth)/      - 登入/登出頁面（公開路由）</span>
+<span class="t">src/app/(app)/       - 登入後的頁面（保護路由）</span>
+<span class="t">src/components/      - React 元件</span>
+<span class="t">src/lib/claude.ts    - Claude API 封裝</span>
+<span class="t">src/lib/supabase/    - Supabase client 工具</span>
+<span class="t">src/types/index.ts   - 共用型別</span>
+
+<span class="c"># 程式碼規範</span>
+<span class="t">- 不使用 any 型別，用 unknown 然後 narrow</span>
+<span class="t">- API route 一律加 input validation（用 zod）</span>
+<span class="t">- 永遠不在前端直接呼叫 Claude API，全部走 /api/</span>
+<span class="t">- Supabase 操作：前端用 anon key，後端管理用 service role</span>
+<span class="t">- 函式命名：動詞開頭（getUser, createConversation, streamChat）</span>
+<span class="t">- 元件命名：PascalCase，檔案名稱與 export 名稱一致</span>
+
+<span class="c"># 環境變數</span>
+<span class="t">ANTHROPIC_API_KEY              - Claude API key（只在 server side 用）</span>
+<span class="t">NEXT_PUBLIC_SUPABASE_URL        - Supabase project URL</span>
+<span class="t">NEXT_PUBLIC_SUPABASE_ANON_KEY   - 前端用</span>
+<span class="t">SUPABASE_SERVICE_ROLE_KEY       - 後端管理用（絕對不給前端）</span>
+
+<span class="c"># 重要限制</span>
+<span class="t">- 不修改 app/layout.tsx 除非有明確指示</span>
+<span class="t">- 新增 API route 時必須加 rate limiting</span>
+<span class="t">- 所有資料庫操作必須確認 RLS policy 存在</span></pre>
+      </div>
+
+      <h3>skill.md — 可重用的任務範本</h3>
+      <p>skill.md 放在 <code>.claude/skills/</code> 目錄下，定義可以重複執行的複雜任務。當你在這個課程每做一個新功能模組，就建立一個對應的 skill，之後就可以用 <code>/skill-name</code> 一鍵呼叫。</p>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">MARKDOWN</span>
+          <span class="code-file">.claude/skills/new-api-route.md</span>
+          <button class="code-copy" onclick="copyCode(this)">copy</button>
+        </div>
+        <pre><span class="c">---</span>
+<span class="t">name: new-api-route</span>
+<span class="t">description: 建立一個新的 API route，包含 input validation、rate limiting、Claude 呼叫</span>
+<span class="c">---</span>
+
+<span class="t">在 src/app/api/$ARGUMENTS/route.ts 建立新的 POST handler。</span>
+
+<span class="t">結構要求：</span>
+<span class="t">1. 用 zod 做 input validation，schema 放在函式頂部</span>
+<span class="t">2. 從 Authorization header 驗證 Supabase session</span>
+<span class="t">3. 呼叫 Claude API（streaming 或 non-streaming 視需求）</span>
+<span class="t">4. 錯誤回傳格式：{ error: string, code: string }</span>
+<span class="t">5. 成功回傳格式視 streaming 而定</span>
+
+<span class="t">參照既有範例：src/app/api/chat/route.ts</span>
+<span class="t">只輸出程式碼，不需要解釋。</span></pre>
+      </div>
+
+      <div class="tip-box"><p>建立 skill 的時機：當你發現自己第二次要求 Claude Code 做類似的任務時，就把那個 prompt 存成 skill。課程做完後你的 skill 庫就是你個人的 AI 開發加速器。</p></div>
+    </div>
+
+    <!-- SYSTEM PROMPT DESIGN -->
+    <div id="prompt-craft" class="section">
+      <div class="section-label">System Prompt 設計</div>
+      <h2>為你的 AI 應用設計 System Prompt</h2>
+      <p>System Prompt 是每次呼叫 Claude API 時傳入的背景指令。它決定了你的 AI 應用的個性、能力邊界和回覆風格。這不是「調整一下 AI 語氣」那麼簡單的事，它是你的產品差異化的核心。</p>
+
+      <h3>旅遊規劃平台的 System Prompt 範例</h3>
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">TYPESCRIPT</span>
+          <span class="code-file">src/lib/prompts/travel.ts</span>
+          <button class="code-copy" onclick="copyCode(this)">copy</button>
+        </div>
+        <pre><span class="k">export const</span> <span class="v">TRAVEL_PLANNER_SYSTEM</span> = <span class="s">`
+你是一個專業的旅遊規劃師，擁有全球地理知識和旅行實務經驗。
+
+## 你的能力
+- 根據用戶的預算、時間、偏好生成完整行程
+- 提供具體的景點、餐廳推薦（包含評分和特色）
+- 估算交通時間和費用
+- 識別潛在問題（旺季、簽證、天氣）
+
+## 回覆規則
+- 行程以天為單位，每天上午/下午/晚間分段
+- 費用估算以台幣表示，標注匯率假設
+- 景點推薦必須包含：名稱、預計停留時間、建議理由
+- 不確定的資訊明確標注「建議出發前再確認」
+
+## 工具使用
+當用戶詢問即時資訊（天氣、航班、票價），你會呼叫對應的工具取得最新數據，
+不要回答你不確定的即時資訊。
+
+## 限制
+不提供醫療建議，不推薦非法活動，不對政治敏感地區表態。
+`</span>
+
+<span class="c">// 動態注入用戶偏好</span>
+<span class="k">export function</span> <span class="f">getTravelSystemPrompt</span>(userPrefs?: {
+  budget?: <span class="s">'backpacker'</span> | <span class="s">'mid-range'</span> | <span class="s">'luxury'</span>
+  travelStyle?: <span class="s">'cultural'</span> | <span class="s">'adventure'</span> | <span class="s">'relaxation'</span>
+}) {
+  <span class="k">let</span> prompt = <span class="v">TRAVEL_PLANNER_SYSTEM</span>
+  <span class="k">if</span> (userPrefs?.budget) {
+    prompt += <span class="s">`\n\n用戶偏好預算等級：</span>${userPrefs.budget}<span class="s">，推薦請符合此預算範圍。`</span>
+  }
+  <span class="k">if</span> (userPrefs?.travelStyle) {
+    prompt += <span class="s">`\n用戶旅遊風格：</span>${userPrefs.travelStyle}<span class="s">，優先推薦符合此風格的體驗。`</span>
+  }
+  <span class="k">return</span> prompt
+}</pre>
+      </div>
+
+      <h3>System Prompt 設計原則</h3>
+      <div class="concepts">
+        <div class="concept-card">
+          <div class="concept-title">明確能力邊界</div>
+          <div class="concept-body">列出 Claude「能做什麼」和「不能做什麼」。模糊的邊界讓 Claude 在邊緣案例時猜測，而猜測結果不可預期。</div>
+        </div>
+        <div class="concept-card">
+          <div class="concept-title">具體的輸出格式</div>
+          <div class="concept-body">如果你的前端需要解析特定 JSON 結構，在 system prompt 裡定義它。不要依賴「Claude 大概會這樣輸出」。</div>
+        </div>
+        <div class="concept-card">
+          <div class="concept-title">動態注入用戶上下文</div>
+          <div class="concept-body">system prompt 不是靜態的。每次呼叫時注入用戶設定、歷史偏好、當前狀態。這讓每個用戶感覺 AI 記得他。</div>
+        </div>
+        <div class="concept-card">
+          <div class="concept-title">Tool Use 說明</div>
+          <div class="concept-body">如果這個 session 有提供工具，在 system prompt 裡說明何時該呼叫工具。Claude 需要知道工具的使用時機，不是只知道工具存在。</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETUP -->
+    <div id="setup" class="section">
+      <div class="section-label">環境建置</div>
+      <h2>從零建立專案</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">01</div>
+          <div class="step-body">
+            <div class="step-title">建立 Next.js 專案</div>
+            <div class="step-desc">用官方 CLI 建立，選 TypeScript、Tailwind CSS v4、App Router、src/ 目錄結構。</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">02</div>
+          <div class="step-body">
+            <div class="step-title">安裝核心套件</div>
+            <div class="step-desc">@anthropic-ai/sdk（Claude）、@supabase/supabase-js + @supabase/ssr（Supabase）、zod（validation）</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">03</div>
+          <div class="step-body">
+            <div class="step-title">建立 Supabase 專案</div>
+            <div class="step-desc">supabase.com → New Project。建立後複製 Project URL 和 anon key。本機開發可選擇用 Supabase CLI 開本地端實例。</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">04</div>
+          <div class="step-body">
+            <div class="step-title">設定環境變數</div>
+            <div class="step-desc">建立 .env.local（本機）和在 Vercel 後台設定（上線）。絕對不要 commit .env 檔案。</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">05</div>
+          <div class="step-body">
+            <div class="step-title">建立 CLAUDE.md</div>
+            <div class="step-desc">把上面的 CLAUDE.md 模板貼進去，填入你的專案資訊。這步先做，Claude Code 才能幫你做後面的步驟。</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">BASH</span>
+          <span class="code-file">terminal</span>
+          <button class="code-copy" onclick="copyCode(this)">copy</button>
+        </div>
+        <pre><span class="c"># 建立專案（選擇：TypeScript yes, Tailwind yes, App Router yes, src/ dir yes）</span>
+<span class="f">npx</span> <span class="t">create-next-app@latest</span> <span class="v">my-ai-app</span> <span class="v">--typescript</span> <span class="v">--tailwind</span> <span class="v">--app</span> <span class="v">--src-dir</span>
+<span class="f">cd</span> <span class="t">my-ai-app</span>
+
+<span class="c"># 安裝 AI 相關套件</span>
+<span class="f">npm</span> <span class="t">install</span> <span class="v">@anthropic-ai/sdk</span>
+
+<span class="c"># 安裝 Supabase</span>
+<span class="f">npm</span> <span class="t">install</span> <span class="v">@supabase/supabase-js</span> <span class="v">@supabase/ssr</span>
+
+<span class="c"># 安裝工具套件</span>
+<span class="f">npm</span> <span class="t">install</span> <span class="v">zod</span>
+
+<span class="c"># 建立環境變數檔案</span>
+<span class="f">cp</span> <span class="t">.env.example</span> <span class="t">.env.local</span>
+
+<span class="c"># 建立 Claude Code 設定目錄</span>
+<span class="f">mkdir</span> <span class="t">-p</span> <span class="v">.claude/skills</span>
+<span class="f">touch</span> <span class="t">CLAUDE.md</span></pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">ENV</span>
+          <span class="code-file">.env.local</span>
+          <button class="code-copy" onclick="copyCode(this)">copy</button>
+        </div>
+        <pre><span class="c"># Claude API（只在 server side 使用）</span>
+<span class="v">ANTHROPIC_API_KEY</span>=<span class="s">sk-ant-...</span>
+
+<span class="c"># Supabase（NEXT_PUBLIC_ 前綴代表可在前端存取）</span>
+<span class="v">NEXT_PUBLIC_SUPABASE_URL</span>=<span class="s">https://your-project.supabase.co</span>
+<span class="v">NEXT_PUBLIC_SUPABASE_ANON_KEY</span>=<span class="s">eyJhbGci...</span>
+
+<span class="c"># Service role key - 只在 server side API routes 使用，絕對不給前端</span>
+<span class="v">SUPABASE_SERVICE_ROLE_KEY</span>=<span class="s">eyJhbGci...</span></pre>
+      </div>
+    </div>
+
+    <!-- PROJECT STRUCTURE -->
+    <div id="structure" class="section">
+      <div class="section-label">專案架構</div>
+      <h2>完整目錄結構</h2>
+      <p>這個結構設計的邏輯是：業務邏輯在 lib/，UI 在 components/，路由在 app/，型別在 types/。任何新功能都知道自己該放哪裡。</p>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">TREE</span>
+          <span class="code-file">完整目錄結構</span>
+          <button class="code-copy" onclick="copyCode(this)">copy</button>
+        </div>
+        <pre><span class="t">my-ai-app/</span>
+<span class="t">├── CLAUDE.md</span>                    <span class="c"># Claude Code 專案設定</span>
+<span class="t">├── .claude/</span>
+<span class="t">│   └── skills/</span>                  <span class="c"># 可重用的 skill 腳本</span>
+<span class="t">│       └── new-api-route.md</span>
+<span class="t">├── supabase/</span>
+<span class="t">│   └── migrations/</span>
+<span class="s">│       └── 001_init.sql</span>         <span class="c"># 資料庫 schema</span>
+<span class="t">└── src/</span>
+<span class="t">    ├── app/</span>
+<span class="t">    │   ├── api/</span>
+<span class="s">    │   │   └── chat/</span>
+<span class="s">    │   │       └── route.ts</span>     <span class="c"># Claude Streaming endpoint</span>
+<span class="t">    │   ├── (auth)/</span>              <span class="c"># 公開路由群組</span>
+<span class="t">    │   │   ├── login/</span>
+<span class="t">    │   │   │   └── page.tsx</span>
+<span class="t">    │   │   └── callback/</span>
+<span class="t">    │   │       └── route.ts</span>     <span class="c"># Supabase OAuth callback</span>
+<span class="t">    │   ├── (app)/</span>               <span class="c"># 登入後路由群組</span>
+<span class="t">    │   │   └── dashboard/</span>
+<span class="t">    │   │       └── page.tsx</span>
+<span class="t">    │   ├── layout.tsx</span>
+<span class="t">    │   └── globals.css</span>
+<span class="t">    ├── components/</span>
+<span class="t">    │   ├── chat/</span>
+<span class="s">    │   │   ├── ChatWindow.tsx</span>   <span class="c"># 對話視窗容器</span>
+<span class="s">    │   │   ├── MessageList.tsx</span>  <span class="c"># 訊息列表</span>
+<span class="s">    │   │   └── ChatInput.tsx</span>    <span class="c"># 輸入框 + 送出邏輯</span>
+<span class="t">    │   └── ui/</span>
+<span class="t">    ├── lib/</span>
+<span class="s">    │   ├── claude.ts</span>            <span class="c"># Claude API 封裝</span>
+<span class="t">    │   ├── supabase/</span>
+<span class="s">    │   │   ├── client.ts</span>        <span class="c"># 瀏覽器端 client</span>
+<span class="s">    │   │   ├── server.ts</span>        <span class="c"># Server Component client</span>
+<span class="s">    │   │   └── middleware.ts</span>    <span class="c"># middleware helper</span>
+<span class="t">    │   └── prompts/</span>
+<span class="s">    │       └── base.ts</span>          <span class="c"># System prompt 模板</span>
+<span class="t">    └── types/</span>
+<span class="s">        └── index.ts</span>             <span class="c"># 共用型別定義</span></pre>
+      </div>
+
+      <h3>共用型別定義</h3>
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">TYPESCRIPT</span>
+          <span class="code-file">src/types/index.ts</span>
+          <button class="code-copy" onclick="copyCode(this)">copy</button>
+        </div>
+        <pre><span class="c">// Claude API 訊息格式</span>
+<span class="k">export interface</span> <span class="f">Message</span> {
+  role: <span class="s">'user'</span> | <span class="s">'assistant'</span>
+  content: <span class="s">string</span>
+}
+
+<span class="c">// 資料庫：對話記錄</span>
+<span class="k">export interface</span> <span class="f">Conversation</span> {
+  id: <span class="s">string</span>
+  user_id: <span class="s">string</span>
+  title: <span class="s">string</span>
+  created_at: <span class="s">string</span>
+  updated_at: <span class="s">string</span>
+}
+
+<span class="c">// 資料庫：單條訊息</span>
+<span class="k">export interface</span> <span class="f">DbMessage</span> {
+  id: <span class="s">string</span>
+  conversation_id: <span class="s">string</span>
+  role: <span class="s">'user'</span> | <span class="s">'assistant'</span>
+  content: <span class="s">string</span>
+  created_at: <span class="s">string</span>
+}
+
+<span class="c">// API request/response</span>
+<span class="k">export interface</span> <span class="f">ChatRequest</span> {
+  messages: <span class="f">Message</span>[]
+  conversationId?: <span class="s">string</span>
+  system?: <span class="s">string</span>
+}
+
+<span class="c">// 用戶資料</span>
+<span class="k">export interface</span> <span class="f">UserProfile</span> {
+  id: <span class="s">string</span>
+  email: <span class="s">string</span>
+  display_name?: <span class="s">string</span>
+  created_at: <span class="s">string</span>
+}</pre>
+      </div>
+    </div>
+
+    <!-- API ROUTE -->
+    <div id="api-route" class="section">
+      <div class="section-label">API Route 實作</div>
+      <h2>Claude API 封裝 + Route Handler</h2>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">TYPESCRIPT</span>
+          <span class="code-file">src/lib/claude.ts</span>
+          <button class="code-copy" onclick="copyCode(this)">copy</button>
+        </div>
+        <pre><span class="k">import</span> Anthropic <span class="k">from</span> <span class="s">'@anthropic-ai/sdk'</span>
+<span class="k">import type</span> { <span class="f">Message</span> } <span class="k">from</span> <span class="s">'@/types'</span>
+
+<span class="c">// 單例模式，避免每次 request 都重新初始化</span>
+<span class="k">const</span> anthropic = <span class="k">new</span> <span class="f">Anthropic</span>({
+  apiKey: process.env.<span class="v">ANTHROPIC_API_KEY</span>!,
+})
+
+<span class="k">export const</span> <span class="v">DEFAULT_MODEL</span> = <span class="s">'claude-sonnet-4-20250514'</span>
+<span class="k">export const</span> <span class="v">DEFAULT_MAX_TOKENS</span> = <span class="v">4096</span>
+
+<span class="c">// 非串流呼叫（用於後台任務、摘要生成等）</span>
+<span class="k">export async function</span> <span class="f">askClaude</span>(
+  messages: <span class="f">Message</span>[],
+  system?: <span class="s">string</span>,
+  maxTokens = <span class="v">DEFAULT_MAX_TOKENS</span>
+): <span class="k">Promise</span>&lt;<span class="s">string</span>&gt; {
+  <span class="k">const</span> res = <span class="k">await</span> anthropic.messages.<span class="f">create</span>({
+    model: <span class="v">DEFAULT_MODEL</span>,
+    max_tokens: maxTokens,
+    system,
+    messages,
+  })
+  <span class="k">const</span> block = res.content[<span class="v">0</span>]
+  <span class="k">if</span> (block.type !== <span class="s">'text'</span>) <span class="k">throw new</span> <span class="f">Error</span>(<span class="s">'Unexpected response type'</span>)
+  <span class="k">return</span> block.text
+}
+
+<span class="c">// 串流呼叫（用於聊天介面，SSE 格式）</span>
+<span class="k">export async function</span> <span class="f">streamClaude</span>(
+  messages: <span class="f">Message</span>[],
+  system?: <span class="s">string</span>,
+  maxTokens = <span class="v">DEFAULT_MAX_TOKENS</span>
+) {
+  <span class="k">return</span> anthropic.messages.<span class="f">stream</span>({
+    model: <span class="v">DEFAULT_MODEL</span>,
+    max_tokens: maxTokens,
+    system,
+    messages,
+  })
+}
+
+<span class="c">// Tool Use 呼叫（用於旅遊、叫車等需要外部 API 的場景）</span>
+<span class="k">export async function</span> <span class="f">claudeWithTools</span>(
+  messages: <span class="f">Message</span>[],
+  tools: Anthropic.<span class="f">Messages</span>.<span class="f">Tool</span>[],
+  system?: <span class="s">string</span>
+) {
+  <span class="k">return</span> anthropic.messages.<span class="f">create</span>({
+    model: <span class="v">DEFAULT_MODEL</span>,
+    max_tokens: <span class="v">4096</span>,
+    system,
+    tools,
+    messages,
+  })
+}</pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">TYPESCRIPT</span>
+          <span class="code-file">src/app/api/chat/route.ts</span>
+          <button class="code-copy" onclick="copyCode(this)">copy</button>
+        </div>
+        <pre><span class="k">import</span> { <span class="f">NextRequest</span>, <span class="f">NextResponse</span> } <span class="k">from</span> <span class="s">'next/server'</span>
+<span class="k">import</span> { z } <span class="k">from</span> <span class="s">'zod'</span>
+<span class="k">import</span> { <span class="f">streamClaude</span> } <span class="k">from</span> <span class="s">'@/lib/claude'</span>
+<span class="k">import</span> { <span class="f">createClient</span> } <span class="k">from</span> <span class="s">'@/lib/supabase/server'</span>
+
+<span class="c">// Input validation schema</span>
+<span class="k">const</span> <span class="v">ChatSchema</span> = z.<span class="f">object</span>({
+  messages: z.<span class="f">array</span>(z.<span class="f">object</span>({
+    role: z.<span class="f">enum</span>([<span class="s">'user'</span>, <span class="s">'assistant'</span>]),
+    content: z.<span class="f">string</span>().<span class="f">min</span>(<span class="v">1</span>).<span class="f">max</span>(<span class="v">10000</span>),
+  })).<span class="f">min</span>(<span class="v">1</span>).<span class="f">max</span>(<span class="v">50</span>),
+  conversationId: z.<span class="f">string</span>().<span class="f">uuid</span>().<span class="f">optional</span>(),
+  system: z.<span class="f">string</span>().<span class="f">max</span>(<span class="v">5000</span>).<span class="f">optional</span>(),
+})
+
+<span class="k">export async function</span> <span class="f">POST</span>(req: <span class="f">NextRequest</span>) {
+  <span class="c">// 1. 驗證用戶身份</span>
+  <span class="k">const</span> supabase = <span class="k">await</span> <span class="f">createClient</span>()
+  <span class="k">const</span> { data: { user } } = <span class="k">await</span> supabase.auth.<span class="f">getUser</span>()
+  <span class="k">if</span> (!user) {
+    <span class="k">return</span> <span class="f">NextResponse</span>.<span class="f">json</span>({ error: <span class="s">'Unauthorized'</span> }, { status: <span class="v">401</span> })
+  }
+
+  <span class="c">// 2. 驗證 input</span>
+  <span class="k">const</span> body = <span class="k">await</span> req.<span class="f">json</span>()
+  <span class="k">const</span> parsed = <span class="v">ChatSchema</span>.<span class="f">safeParse</span>(body)
+  <span class="k">if</span> (!parsed.success) {
+    <span class="k">return</span> <span class="f">NextResponse</span>.<span class="f">json</span>(
+      { error: <span class="s">'Invalid input'</span>, details: parsed.error.<span class="f">flatten</span>() },
+      { status: <span class="v">400</span> }
+    )
+  }
+
+  <span class="k">const</span> { messages, system } = parsed.data
+
+  <span class="c">// 3. 建立 SSE 串流</span>
+  <span class="k">const</span> encoder = <span class="k">new</span> <span class="f">TextEncoder</span>()
+  <span class="k">const</span> stream = <span class="k">new</span> <span class="f">ReadableStream</span>({
+    <span class="k">async</span> <span class="f">start</span>(controller) {
+      <span class="k">let</span> fullResponse = <span class="s">''</span>
+      <span class="k">try</span> {
+        <span class="k">const</span> claudeStream = <span class="k">await</span> <span class="f">streamClaude</span>(messages, system)
+
+        <span class="k">for await</span> (<span class="k">const</span> chunk <span class="k">of</span> claudeStream) {
+          <span class="k">if</span> (
+            chunk.type === <span class="s">'content_block_delta'</span> &&
+            chunk.delta.type === <span class="s">'text_delta'</span>
+          ) {
+            <span class="k">const</span> text = chunk.delta.text
+            fullResponse += text
+            controller.<span class="f">enqueue</span>(
+              encoder.<span class="f">encode</span>(<span class="s">`data: </span>${<span class="f">JSON</span>.<span class="f">stringify</span>({ text })}<span class="s">\n\n`</span>)
+            )
+          }
+        }
+
+        <span class="c">// 4. 串流結束後，把訊息存到 Supabase</span>
+        <span class="k">if</span> (parsed.data.conversationId) {
+          <span class="k">await</span> supabase.<span class="f">from</span>(<span class="s">'messages'</span>).<span class="f">insert</span>([
+            { conversation_id: parsed.data.conversationId, role: <span class="s">'user'</span>, content: messages.<span class="f">at</span>(-<span class="v">1</span>)!.content },
+            { conversation_id: parsed.data.conversationId, role: <span class="s">'assistant'</span>, content: fullResponse },
+          ])
+        }
+
+        controller.<span class="f">enqueue</span>(encoder.<span class="f">encode</span>(<span class="s">'data: [DONE]\n\n'</span>))
+      } <span class="k">catch</span> (err) {
+        <span class="k">const</span> msg = err <span class="k">instanceof</span> Error ? err.message : <span class="s">'Internal error'</span>
+        controller.<span class="f">enqueue</span>(
+          encoder.<span class="f">encode</span>(<span class="s">`data: </span>${<span class="f">JSON</span>.<span class="f">stringify</span>({ error: msg })}<span class="s">\n\n`</span>)
+        )
+      } <span class="k">finally</span> {
+        controller.<span class="f">close</span>()
+      }
+    }
+  })
+
+  <span class="k">return new</span> <span class="f">Response</span>(stream, {
+    headers: {
+      <span class="s">'Content-Type'</span>: <span class="s">'text/event-stream'</span>,
+      <span class="s">'Cache-Control'</span>: <span class="s">'no-cache, no-transform'</span>,
+      <span class="s">'Connection'</span>: <span class="s">'keep-alive'</span>,
+      <span class="s">'X-Accel-Buffering'</span>: <span class="s">'no'</span>,
+    },
+  })
+}</pre>
+      </div>
+    </div>
+
+    <!-- STREAMING -->
+    <div id="streaming" class="section">
+      <div class="section-label">Streaming 串流</div>
+      <h2>前端接收串流 + React Hook</h2>
+      <p>把串流邏輯封裝成 custom hook，讓 ChatInput 和 ChatWindow 都能乾淨地使用，不需要在元件裡寫 ReadableStream 邏輯。</p>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">TYPESCRIPT</span>
+          <span class="code-file">src/hooks/useChat.ts</span>
+          <button class="code-copy" onclick="copyCode(this)">copy</button>
+        </div>
+        <pre><span class="k">import</span> { useState, useCallback } <span class="k">from</span> <span class="s">'react'</span>
+<span class="k">import type</span> { <span class="f">Message</span> } <span class="k">from</span> <span class="s">'@/types'</span>
+
+<span class="k">export function</span> <span class="f">useChat</span>(system?: <span class="s">string</span>) {
+  <span class="k">const</span> [messages, <span class="f">setMessages</span>] = <span class="f">useState</span>&lt;<span class="f">Message</span>[]&gt;([])
+  <span class="k">const</span> [streaming, <span class="f">setStreaming</span>] = <span class="f">useState</span>(<span class="k">false</span>)
+  <span class="k">const</span> [currentText, <span class="f">setCurrentText</span>] = <span class="f">useState</span>(<span class="s">''</span>)
+
+  <span class="k">const</span> <span class="f">sendMessage</span> = <span class="f">useCallback</span>(<span class="k">async</span> (content: <span class="s">string</span>) => {
+    <span class="k">const</span> userMsg: <span class="f">Message</span> = { role: <span class="s">'user'</span>, content }
+    <span class="k">const</span> nextMessages = [...messages, userMsg]
+    <span class="f">setMessages</span>(nextMessages)
+    <span class="f">setStreaming</span>(<span class="k">true</span>)
+    <span class="f">setCurrentText</span>(<span class="s">''</span>)
+
+    <span class="k">try</span> {
+      <span class="k">const</span> res = <span class="k">await</span> <span class="f">fetch</span>(<span class="s">'/api/chat'</span>, {
+        method: <span class="s">'POST'</span>,
+        headers: { <span class="s">'Content-Type'</span>: <span class="s">'application/json'</span> },
+        body: <span class="f">JSON</span>.<span class="f">stringify</span>({ messages: nextMessages, system }),
+      })
+
+      <span class="k">if</span> (!res.ok) <span class="k">throw new</span> <span class="f">Error</span>(<span class="k">await</span> res.<span class="f">text</span>())
+
+      <span class="k">const</span> reader = res.body!.<span class="f">getReader</span>()
+      <span class="k">const</span> decoder = <span class="k">new</span> <span class="f">TextDecoder</span>()
+      <span class="k">let</span> accumulated = <span class="s">''</span>
+
+      <span class="k">while</span> (<span class="k">true</span>) {
+        <span class="k">const</span> { done, value } = <span class="k">await</span> reader.<span class="f">read</span>()
+        <span class="k">if</span> (done) <span class="k">break</span>
+
+        <span class="k">const</span> lines = decoder.<span class="f">decode</span>(value, { stream: <span class="k">true</span> }).<span class="f">split</span>(<span class="s">'\n'</span>)
+        <span class="k">for</span> (<span class="k">const</span> line <span class="k">of</span> lines) {
+          <span class="k">if</span> (!line.<span class="f">startsWith</span>(<span class="s">'data: '</span>)) <span class="k">continue</span>
+          <span class="k">const</span> raw = line.<span class="f">slice</span>(<span class="v">6</span>)
+          <span class="k">if</span> (raw === <span class="s">'[DONE]'</span>) <span class="k">break</span>
+          <span class="k">const</span> { text } = <span class="f">JSON</span>.<span class="f">parse</span>(raw) <span class="k">as</span> { text?: <span class="s">string</span> }
+          <span class="k">if</span> (text) {
+            accumulated += text
+            <span class="f">setCurrentText</span>(accumulated)
+          }
+        }
+      }
+
+      <span class="c">// 串流完成：把 assistant 訊息存進 messages</span>
+      <span class="f">setMessages</span>(prev => [
+        ...prev,
+        { role: <span class="s">'assistant'</span>, content: accumulated }
+      ])
+    } <span class="k">finally</span> {
+      <span class="f">setStreaming</span>(<span class="k">false</span>)
+      <span class="f">setCurrentText</span>(<span class="s">''</span>)
+    }
+  }, [messages, system])
+
+  <span class="k">return</span> { messages, streaming, currentText, <span class="f">sendMessage</span> }
+}</pre>
+      </div>
+    </div>
+
+    <!-- AUTH + DB -->
+    <div id="auth-db" class="section">
+      <div class="section-label">Auth + 資料庫</div>
+      <h2>Supabase Auth + Row Level Security</h2>
+      <p>正確的 RLS 設計讓資料隔離變成資料庫層的保障，不依賴應用程式邏輯。這是 AI 多用戶應用的基本安全要求。</p>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">SQL</span>
+          <span class="code-file">supabase/migrations/001_init.sql</span>
+          <button class="code-copy" onclick="copyCode(this)">copy</button>
+        </div>
+        <pre><span class="c">-- ===== PROFILES =====</span>
+<span class="k">create table</span> profiles (
+  id           uuid <span class="k">references</span> auth.users <span class="k">on delete cascade primary key</span>,
+  display_name text,
+  email        text <span class="k">unique not null</span>,
+  created_at   timestamptz <span class="k">default</span> <span class="f">now</span>() <span class="k">not null</span>
+);
+
+<span class="c">-- 新用戶自動建立 profile</span>
+<span class="k">create or replace function</span> <span class="f">handle_new_user</span>()
+<span class="k">returns trigger as</span> <span class="s">$$</span>
+<span class="k">begin</span>
+  <span class="k">insert into</span> public.profiles(id, email)
+  <span class="k">values</span>(new.id, new.email);
+  <span class="k">return</span> new;
+<span class="k">end</span>;
+<span class="s">$$</span> <span class="k">language</span> plpgsql security definer;
+
+<span class="k">create trigger</span> on_auth_user_created
+  <span class="k">after insert on</span> auth.users
+  <span class="k">for each row execute procedure</span> <span class="f">handle_new_user</span>();
+
+<span class="c">-- ===== CONVERSATIONS =====</span>
+<span class="k">create table</span> conversations (
+  id         uuid <span class="k">default</span> <span class="f">gen_random_uuid</span>() <span class="k">primary key</span>,
+  user_id    uuid <span class="k">references</span> profiles(id) <span class="k">on delete cascade not null</span>,
+  title      text <span class="k">not null default</span> <span class="s">'新對話'</span>,
+  created_at timestamptz <span class="k">default</span> <span class="f">now</span>() <span class="k">not null</span>,
+  updated_at timestamptz <span class="k">default</span> <span class="f">now</span>() <span class="k">not null</span>
+);
+
+<span class="k">create index</span> idx_conversations_user_id <span class="k">on</span> conversations(user_id);
+
+<span class="c">-- ===== MESSAGES =====</span>
+<span class="k">create table</span> messages (
+  id              uuid <span class="k">default</span> <span class="f">gen_random_uuid</span>() <span class="k">primary key</span>,
+  conversation_id uuid <span class="k">references</span> conversations(id) <span class="k">on delete cascade not null</span>,
+  role            text <span class="k">check</span>(role <span class="k">in</span>(<span class="s">'user'</span>, <span class="s">'assistant'</span>)) <span class="k">not null</span>,
+  content         text <span class="k">not null</span>,
+  created_at      timestamptz <span class="k">default</span> <span class="f">now</span>() <span class="k">not null</span>
+);
+
+<span class="k">create index</span> idx_messages_conversation_id <span class="k">on</span> messages(conversation_id);
+
+<span class="c">-- ===== ROW LEVEL SECURITY =====</span>
+<span class="k">alter table</span> profiles     <span class="k">enable row level security</span>;
+<span class="k">alter table</span> conversations <span class="k">enable row level security</span>;
+<span class="k">alter table</span> messages     <span class="k">enable row level security</span>;
+
+<span class="c">-- Profiles: 只能讀/寫自己</span>
+<span class="k">create policy</span> <span class="s">"profiles: self only"</span> <span class="k">on</span> profiles
+  <span class="k">for all using</span> (auth.<span class="f">uid</span>() = id);
+
+<span class="c">-- Conversations: 只能操作自己的</span>
+<span class="k">create policy</span> <span class="s">"conversations: own"</span> <span class="k">on</span> conversations
+  <span class="k">for all using</span> (auth.<span class="f">uid</span>() = user_id);
+
+<span class="c">-- Messages: 只能操作屬於自己 conversation 的</span>
+<span class="k">create policy</span> <span class="s">"messages: own conversations"</span> <span class="k">on</span> messages
+  <span class="k">for all using</span> (
+    conversation_id <span class="k">in</span> (
+      <span class="k">select</span> id <span class="k">from</span> conversations <span class="k">where</span> user_id = auth.<span class="f">uid</span>()
+    )
+  );</pre>
+      </div>
+
+      <div class="warn-box"><p>RLS policy 設定完後，用 Supabase Dashboard 的 SQL Editor 執行 <code>select * from conversations</code>，應該要回傳 0 筆資料（因為你沒有用 authenticated 身份查詢）。這是確認 RLS 正確運作的最快方式。</p></div>
+
+      <h3>Supabase Client 封裝</h3>
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">TYPESCRIPT</span>
+          <span class="code-file">src/lib/supabase/server.ts</span>
+          <button class="code-copy" onclick="copyCode(this)">copy</button>
+        </div>
+        <pre><span class="k">import</span> { <span class="f">createServerClient</span> } <span class="k">from</span> <span class="s">'@supabase/ssr'</span>
+<span class="k">import</span> { cookies } <span class="k">from</span> <span class="s">'next/headers'</span>
+
+<span class="k">export async function</span> <span class="f">createClient</span>() {
+  <span class="k">const</span> cookieStore = <span class="k">await</span> <span class="f">cookies</span>()
+  <span class="k">return</span> <span class="f">createServerClient</span>(
+    process.env.<span class="v">NEXT_PUBLIC_SUPABASE_URL</span>!,
+    process.env.<span class="v">NEXT_PUBLIC_SUPABASE_ANON_KEY</span>!,
+    {
+      cookies: {
+        <span class="f">getAll</span>() { <span class="k">return</span> cookieStore.<span class="f">getAll</span>() },
+        <span class="f">setAll</span>(cookiesToSet) {
+          cookiesToSet.<span class="f">forEach</span>(({ name, value, options }) =>
+            cookieStore.<span class="f">set</span>(name, value, options)
+          )
+        },
+      },
+    }
+  )
+}</pre>
+      </div>
+    </div>
+
+    <!-- DEPLOY -->
+    <div id="deploy" class="section">
+      <div class="section-label">部署上線</div>
+      <h2>Vercel 部署 + 環境變數</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">01</div>
+          <div class="step-body">
+            <div class="step-title">推送到 GitHub</div>
+            <div class="step-desc">確認 .gitignore 包含 .env.local。git init → git add . → git commit -m "init" → 建 GitHub repo → git push</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">02</div>
+          <div class="step-body">
+            <div class="step-title">Vercel 匯入</div>
+            <div class="step-desc">vercel.com → Add New Project → Import Git Repository → 選 my-ai-app。Framework 自動偵測為 Next.js，不需要改設定。</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">03</div>
+          <div class="step-body">
+            <div class="step-title">設定環境變數</div>
+            <div class="step-desc">在 Vercel 部署頁面展開 Environment Variables，加入所有 .env.local 裡的變數。注意 SUPABASE_SERVICE_ROLE_KEY 只設 Production 環境。</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">04</div>
+          <div class="step-body">
+            <div class="step-title">Supabase Auth 設定 Redirect URL</div>
+            <div class="step-desc">Supabase Dashboard → Authentication → URL Configuration → Site URL 填入你的 Vercel domain。Redirect URLs 加入 https://your-app.vercel.app/auth/callback。</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">05</div>
+          <div class="step-body">
+            <div class="step-title">驗證部署</div>
+            <div class="step-desc">瀏覽器開 https://your-app.vercel.app，確認可以登入、可以呼叫 /api/chat。用 Vercel Logs 查看 API 執行紀錄。</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="info-box"><p>每次 git push 到 main branch，Vercel 會自動重新部署。PR 也會自動產生 Preview URL，可以在合併前測試。</p></div>
+    </div>
+
+    <!-- DELIVERABLE -->
+    <div id="deliverable" class="section">
+      <div class="deliverable">
+        <div class="deliverable-label">CLASS 01 DELIVERABLE</div>
+        <div class="deliverable-title">可登入 · 可對話 · 有 Streaming 的 AI 應用骨架</div>
+        <div class="deliverable-desc">完成本堂課後，你擁有一個完整部署在 Vercel 的全端 AI 應用，同時建立了整個課程的開發加速基礎設施：</div>
+        <div class="deliverable-checks">
+          <div class="deliverable-check">CLAUDE.md 讓 Claude Code 不需要重複解釋，直接輸出符合專案規範的程式碼</div>
+          <div class="deliverable-check">用戶可以用 Email 或 Google 帳號登入/登出</div>
+          <div class="deliverable-check">登入後可以和 Claude 即時串流對話，回覆字字即時顯示</div>
+          <div class="deliverable-check">對話記錄存在 Supabase，RLS 確保用戶資料隔離</div>
+          <div class="deliverable-check">所有 API route 有 zod input validation，不會因格式錯誤崩潰</div>
+          <div class="deliverable-check">部署在 Vercel，有 https:// 網址，可以分享給任何人</div>
+        </div>
+      </div>
+
+      <div class="info-box"><p>下一堂課直接在這個骨架上開始建旅遊規劃平台。你不需要再設定環境，只需要加功能。</p></div>
+    </div>
+
+    <a href="class2.html" class="next-card">
+      <div>
+        <div class="next-label">NEXT — CLASS 02</div>
+        <div class="next-title">AI 智慧旅遊規劃平台 — Tool Use + Maps + 航班 API</div>
+      </div>
+      <div class="next-arrow">→</div>
+    </a>
+  </main>
+</div>
+
+<script>
+function copyCode(btn) {
+  const pre = btn.closest('.code-block').querySelector('pre')
+  navigator.clipboard.writeText(pre.innerText).then(() => {
+    btn.textContent = 'copied!'
+    setTimeout(() => btn.textContent = 'copy', 2000)
+  })
+}
+
+const sections = document.querySelectorAll('[id]')
+const links = document.querySelectorAll('.sidebar-nav a')
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      links.forEach(l => l.classList.remove('active'))
+      const active = document.querySelector(`.sidebar-nav a[href="#${e.target.id}"]`)
+      if (active) active.classList.add('active')
+    }
+  })
+}, { rootMargin: '-60px 0px -70% 0px' })
+sections.forEach(s => obs.observe(s))
+</script>
+</body>
+</html>
