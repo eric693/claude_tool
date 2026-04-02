@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Class 02 — AI 智慧旅遊規劃平台 × Tool Use | Build with Claude</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0f; --bg2: #111118; --bg3: #18181f;
+  --border: rgba(255,255,255,0.07); --border2: rgba(255,255,255,0.13);
+  --text: #e8e8f0; --text2: #8888a0; --text3: #55556a;
+  --accent: #c8f055; --accent2: #a0d040;
+  --purple: #9b8bff; --teal: #4de8c2; --coral: #ff7a5c;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Sora',sans-serif;font-size:15px;line-height:1.7;overflow-x:hidden}
+body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:80px 80px;pointer-events:none;z-index:0;opacity:0.4}
+
+nav{position:relative;border-bottom:1px solid var(--border);backdrop-filter:blur(20px);background:rgba(10,10,15,0.88)}
+.nav-inner{max-width:1100px;margin:0 auto;padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:60px}
+.nav-logo{font-family:'DM Mono',monospace;font-size:13px;color:var(--accent);letter-spacing:.05em;text-decoration:none}
+.nav-right{display:flex;align-items:center;gap:24px}
+.nav-links{display:flex;gap:24px}
+.nav-links a{font-size:13px;color:var(--text2);text-decoration:none;transition:color .2s}
+.nav-links a:hover{color:var(--text)}
+.nav-class{font-family:'DM Mono',monospace;font-size:11px;color:var(--text3);letter-spacing:.08em}
+
+.layout{max-width:1100px;margin:0 auto;padding:40px 32px 80px;display:grid;grid-template-columns:220px 1fr;gap:56px;position:relative;z-index:1}
+
+.sidebar{height:fit-content}
+.sidebar-label{font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);letter-spacing:.1em;margin-bottom:16px}
+.sidebar-nav{display:flex;flex-direction:column;gap:2px}
+.sidebar-nav a{font-size:12px;color:var(--text3);text-decoration:none;padding:7px 12px;border-radius:3px;border-left:2px solid transparent;transition:all .15s}
+.sidebar-nav a:hover{color:var(--text2);background:var(--bg3)}
+.sidebar-nav a.active{color:var(--accent);border-left-color:var(--accent);background:rgba(200,240,85,0.05)}
+.sidebar-sep{height:1px;background:var(--border);margin:14px 0}
+.sidebar-prev-next{display:flex;flex-direction:column;gap:8px}
+.sidebar-prev-next a{font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);text-decoration:none;letter-spacing:.05em;padding:7px 10px;border:1px solid var(--border);border-radius:3px;transition:all .15s}
+.sidebar-prev-next a:hover{border-color:var(--border2);color:var(--text2)}
+
+.class-badge{font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);letter-spacing:.1em;margin-bottom:20px;display:flex;align-items:center;gap:10px}
+.class-badge::after{content:'';flex:1;height:1px;background:rgba(200,240,85,0.2)}
+h1{font-family:'DM Serif Display',serif;font-size:clamp(32px,4vw,52px);line-height:1.1;letter-spacing:-.02em;margin-bottom:16px}
+h1 em{font-style:italic;color:var(--accent)}
+.class-desc{font-size:16px;color:var(--text2);line-height:1.75;margin-bottom:36px;max-width:640px}
+
+.outcome-box{background:rgba(77,232,194,0.05);border:1px solid rgba(77,232,194,0.2);border-radius:4px;padding:24px 28px;margin-bottom:48px}
+.outcome-label{font-family:'DM Mono',monospace;font-size:10px;color:var(--teal);letter-spacing:.1em;margin-bottom:10px}
+.outcome-text{font-size:14px;color:var(--text2);line-height:1.7}
+
+.stack-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:48px}
+.stack-pill{font-family:'DM Mono',monospace;font-size:11px;color:var(--text3);background:var(--bg3);border:1px solid var(--border);padding:5px 12px;border-radius:2px;letter-spacing:.04em}
+
+.section{margin-bottom:72px}
+.section-label{font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:20px;display:flex;align-items:center;gap:12px}
+.section-label::after{content:'';flex:1;height:1px;background:var(--border)}
+h2{font-family:'DM Serif Display',serif;font-size:28px;color:var(--text);margin-bottom:16px;letter-spacing:-.01em}
+h3{font-size:15px;font-weight:600;color:var(--text);margin-bottom:10px;margin-top:32px}
+h4{font-size:13px;font-weight:500;color:var(--text2);margin-bottom:8px;margin-top:20px;font-family:'DM Mono',monospace;letter-spacing:.04em}
+p{color:var(--text2);margin-bottom:16px;line-height:1.75}
+ul,ol{padding-left:20px;margin-bottom:16px}
+li{color:var(--text2);line-height:1.75;margin-bottom:4px}
+li strong{color:var(--text);font-weight:500}
+
+.code-block{background:var(--bg3);border:1px solid var(--border);border-radius:4px;margin:20px 0;overflow:hidden}
+.code-header{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--border);background:var(--bg2)}
+.code-lang{font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);letter-spacing:.08em}
+.code-file{font-family:'DM Mono',monospace;font-size:10px;color:var(--teal)}
+.code-copy{font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);cursor:pointer;background:none;border:1px solid var(--border);padding:3px 9px;border-radius:2px;transition:all .15s}
+.code-copy:hover{border-color:var(--border2);color:var(--text2)}
+pre{padding:20px;overflow-x:auto;font-family:'DM Mono',monospace;font-size:12px;line-height:1.75;tab-size:2}
+.k{color:#9b8bff}.s{color:#4de8c2}.c{color:#55556a;font-style:italic}.v{color:#c8f055}.f{color:#ff7a5c}.t{color:#e8e8f0}.o{color:#ffd700}
+
+.steps{display:flex;flex-direction:column;gap:2px;margin:20px 0}
+.step{display:grid;grid-template-columns:44px 1fr;gap:16px;background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:20px 24px;align-items:flex-start}
+.step-num{font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);letter-spacing:.06em;padding-top:3px}
+.step-title{font-size:14px;font-weight:500;color:var(--text);margin-bottom:6px}
+.step-desc{font-size:13px;color:var(--text2);line-height:1.65}
+
+.concepts{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:20px 0}
+.concept-card{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:20px 24px}
+.concept-title{font-family:'DM Mono',monospace;font-size:11px;color:var(--purple);letter-spacing:.06em;margin-bottom:8px}
+.concept-body{font-size:13px;color:var(--text2);line-height:1.65}
+
+.info-box{border-left:2px solid var(--accent);padding:14px 20px;background:rgba(200,240,85,0.04);border-radius:0 4px 4px 0;margin:20px 0}
+.info-box p{margin:0;font-size:13px;color:var(--text2)}
+.warn-box{border-left:2px solid var(--coral);padding:14px 20px;background:rgba(255,122,92,0.04);border-radius:0 4px 4px 0;margin:20px 0}
+.warn-box p{margin:0;font-size:13px;color:var(--text2)}
+.tip-box{border-left:2px solid var(--purple);padding:14px 20px;background:rgba(155,139,255,0.04);border-radius:0 4px 4px 0;margin:20px 0}
+.tip-box p{margin:0;font-size:13px;color:var(--text2)}
+
+.tool-flow{background:var(--bg2);border:1px solid var(--border);border-radius:4px;overflow:hidden;margin:20px 0}
+.tool-flow-header{padding:12px 20px;border-bottom:1px solid var(--border);font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);letter-spacing:.1em}
+.tool-step{display:grid;grid-template-columns:32px 120px 1fr;gap:0;border-bottom:1px solid var(--border)}
+.tool-step:last-child{border-bottom:none}
+.tool-step-idx{padding:14px 12px;font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);border-right:1px solid var(--border);display:flex;align-items:flex-start;padding-top:16px}
+.tool-step-who{padding:14px 16px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.06em;border-right:1px solid var(--border);display:flex;align-items:flex-start;padding-top:16px}
+.who-claude{color:var(--accent)}
+.who-app{color:var(--teal)}
+.who-api{color:var(--purple)}
+.tool-step-content{padding:14px 18px;font-size:13px;color:var(--text2);line-height:1.65}
+
+.deliverable{background:var(--bg2);border:1px solid rgba(200,240,85,0.2);border-radius:4px;padding:28px;margin:36px 0}
+.deliverable-label{font-family:'DM Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:.1em;margin-bottom:12px}
+.deliverable-title{font-size:17px;font-weight:500;color:var(--text);margin-bottom:8px}
+.deliverable-desc{font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:16px}
+.deliverable-checks{display:flex;flex-direction:column;gap:6px}
+.deliverable-check{font-size:13px;color:var(--text2);display:flex;gap:10px}
+.deliverable-check::before{content:'OK';color:var(--accent);font-family:'DM Mono',monospace;flex-shrink:0;font-size:10px;padding-top:3px}
+
+.next-card{display:flex;align-items:center;justify-content:space-between;background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:24px 28px;text-decoration:none;margin-top:48px;transition:border-color .2s}
+.next-card:hover{border-color:var(--accent)}
+.next-label{font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);letter-spacing:.1em;margin-bottom:6px}
+.next-title{font-size:15px;font-weight:500;color:var(--text)}
+.next-arrow{font-size:20px;color:var(--accent)}
+
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:20px 0}
+.col-card{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:20px 24px}
+.col-card-title{font-family:'DM Mono',monospace;font-size:11px;color:var(--teal);letter-spacing:.06em;margin-bottom:10px}
+.col-card p{font-size:13px;margin-bottom:0}
+
+.pattern-row{display:flex;flex-direction:column;gap:2px;margin:20px 0}
+.pattern{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:18px 22px}
+.pattern-name{font-family:'DM Mono',monospace;font-size:11px;color:var(--purple);letter-spacing:.06em;margin-bottom:6px}
+.pattern-desc{font-size:13px;color:var(--text2);line-height:1.6}
+
+@media(max-width:768px){.layout{grid-template-columns:1fr;padding:40px 20px 60px}.sidebar{display:none}.concepts{grid-template-columns:1fr}.two-col{grid-template-columns:1fr}.tool-step{grid-template-columns:32px 1fr}}
+</style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a class="nav-logo" href="index.html">BUILD_WITH_CLAUDE</a>
+    <div class="nav-right">
+      <span class="nav-class">CLASS 02 / 10</span>
+      <div class="nav-links">
+        <a href="index.html">大綱</a>
+        <a href="class1.html">← 上一堂</a>
+        <a href="class3.html">下一堂 →</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-label">本堂內容</div>
+    <nav class="sidebar-nav">
+      <a href="#intro" class="active">課程目標</a>
+      <a href="#tool-use">Tool Use 核心概念</a>
+      <a href="#tool-define">定義工具</a>
+      <a href="#tool-loop">執行迴圈實作</a>
+      <a href="#maps">Google Maps 整合</a>
+      <a href="#flights">Amadeus 航班 API</a>
+      <a href="#react-query">React Query 狀態</a>
+      <a href="#ui">旅遊規劃 UI</a>
+      <a href="#db">資料庫設計</a>
+      <a href="#deliverable">本堂成品</a>
+    </nav>
+    <div class="sidebar-sep"></div>
+    <div class="sidebar-prev-next">
+      <a href="class1.html">← Class 01</a>
+      <a href="class3.html">Class 03 →</a>
+    </div>
+  </aside>
+
+  <main>
+    <div class="class-badge">CLASS_02 &nbsp;·&nbsp; FULL BUILD</div>
+    <h1>AI 智慧旅遊<br><em>規劃平台</em></h1>
+    <p class="class-desc">這堂課的核心是 Claude Tool Use（Function Calling）。你會教 Claude 如何在對話中主動呼叫真實的外部 API——搜尋航班、查景點、規劃地圖路線——把 AI 從純粹的文字生成器，變成能執行動作的智慧代理人。</p>
+
+    <div class="stack-row">
+      <span class="stack-pill">Claude Tool Use</span>
+      <span class="stack-pill">Google Maps API</span>
+      <span class="stack-pill">Amadeus API</span>
+      <span class="stack-pill">React Query</span>
+      <span class="stack-pill">Next.js 15</span>
+      <span class="stack-pill">TypeScript</span>
+      <span class="stack-pill">Supabase</span>
+    </div>
+
+    <div class="outcome-box">
+      <div class="outcome-label">LEARNING OUTCOME</div>
+      <div class="outcome-text">課程結束後，你擁有：(1) 一個對話式旅遊規劃平台，用戶輸入「我想去京都五天四夜，預算八萬台幣」，AI 會主動查詢航班、搜尋住宿、生成行程，並顯示在 Google Maps 上；(2) 理解 Tool Use 的完整執行迴圈，能把這個模式應用到任何需要外部 API 的 AI 功能。</div>
+    </div>
+
+    <!-- TOOL USE CONCEPT -->
+    <div id="tool-use" class="section">
+      <div class="section-label">Tool Use 核心概念</div>
+      <h2>讓 Claude 能執行動作</h2>
+      <p>Tool Use（也叫 Function Calling）是讓 Claude 在回答時，能夠決定「我現在需要呼叫某個函式來取得資訊」。這不是 Claude 自己執行程式碼——Claude 只是告訴你「請幫我執行這個函式，帶這些參數」，你的程式碼負責實際執行，然後把結果回傳給 Claude，Claude 再生成最終回覆。</p>
+
+      <div class="concepts">
+        <div class="concept-card">
+          <div class="concept-title">工具定義</div>
+          <div class="concept-body">你在呼叫 Claude API 時傳入 tools 陣列，每個工具有 name、description、input_schema。description 要寫清楚，Claude 靠它判斷何時呼叫這個工具。</div>
+        </div>
+        <div class="concept-card">
+          <div class="concept-title">工具呼叫</div>
+          <div class="concept-body">Claude 決定要使用工具時，回傳的 stop_reason 是 <code>tool_use</code>，content 裡有 tool_use block，包含 tool name 和 input 參數。</div>
+        </div>
+        <div class="concept-card">
+          <div class="concept-title">工具結果</div>
+          <div class="concept-body">你執行工具後，建立一個 role: 'user' 的訊息，content 是 tool_result block，包含 tool_use_id 和執行結果，再送回 Claude。</div>
+        </div>
+        <div class="concept-card">
+          <div class="concept-title">多工具並行</div>
+          <div class="concept-body">Claude 可以在單次回應中請求多個工具呼叫（parallel tool use）。你可以用 Promise.all() 並行執行，然後一次性回傳所有結果，減少來回次數。</div>
+        </div>
+      </div>
+
+      <h3>Tool Use vs. 直接叫 Claude 輸出 JSON</h3>
+      <div class="two-col">
+        <div class="col-card">
+          <div class="col-card-title">直接輸出 JSON（不用 Tool Use）</div>
+          <p>適合：Claude 本身有足夠知識可以回答，只是需要結構化輸出。例如分析文字情感、生成行程草稿、提取實體。</p>
+          <p>缺點：Claude 的知識有截止日期，無法取得即時資料（當前票價、即時天氣）。</p>
+        </div>
+        <div class="col-card">
+          <div class="col-card-title">Tool Use（呼叫外部 API）</div>
+          <p>適合：需要即時資料、需要執行動作（搜尋、預訂）、需要整合多個外部服務。</p>
+          <p>優點：Claude 負責決策和語言生成，外部 API 負責真實數據。分工清晰，可靠性高。</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOOL DEFINE -->
+    <div id="tool-define" class="section">
+      <div class="section-label">定義工具</div>
+      <h2>為旅遊平台定義四個工具</h2>
+      <p>工具定義的品質直接影響 Claude 的判斷準確率。description 不只是說明文字，它是 Claude 決定「要不要、何時、如何」呼叫這個工具的依據。</p>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">TYPESCRIPT</span>
+          <span class="code-file">src/lib/tools/travel-tools.ts</span>
+          <button class="code-copy" onclick="copyCode(this)">copy</button>
+        </div>
+        <pre><span class="k">import type</span> Anthropic <span class="k">from</span> <span class="s">'@anthropic-ai/sdk'</span>
+
+<span class="k">export const</span> <span class="v">TRAVEL_TOOLS</span>: Anthropic.<span class="f">Messages</span>.<span class="f">Tool</span>[] = [
+  {
+    name: <span class="s">'search_flights'</span>,
+    description: <span class="s">`搜尋指定日期、出發地、目的地的航班。
+當用戶詢問航班資訊、票價、班次時呼叫此工具。
+回傳最多 5 筆符合條件的航班，包含航空公司、時間、票價。`</span>,
+    input_schema: {
+      type: <span class="s">'object'</span>,
+      properties: {
+        origin: { type: <span class="s">'string'</span>, description: <span class="s">'出發機場的 IATA 代碼，例如 TPE、NRT'</span> },
+        destination: { type: <span class="s">'string'</span>, description: <span class="s">'目的地機場的 IATA 代碼，例如 KIX、CDG'</span> },
+        departure_date: { type: <span class="s">'string'</span>, description: <span class="s">'出發日期，格式 YYYY-MM-DD'</span> },
+        return_date: { type: <span class="s">'string'</span>, description: <span class="s">'回程日期，格式 YYYY-MM-DD，單程旅遊不提供此欄'</span> },
+        adults: { type: <span class="s">'number'</span>, description: <span class="s">'成人人數，預設 1'</span> },
+      },
+      required: [<span class="s">'origin'</span>, <span class="s">'destination'</span>, <span class="s">'departure_date'</span>],
+    },
+  },
+  {
+    name: <span class="s">'search_places'</span>,
+    description: <span class="s">`搜尋指定地點附近的景點、餐廳、住宿。
+當用戶想了解當地有什麼好玩、好吃、好住時呼叫。
+可指定類型（tourist_attraction / restaurant / lodging）和半徑。`</span>,
+    input_schema: {
+      type: <span class="s">'object'</span>,
+      properties: {
+        query: { type: <span class="s">'string'</span>, description: <span class="s">'搜尋關鍵字，例如「京都 抹茶甜點」'</span> },
+        location: { type: <span class="s">'string'</span>, description: <span class="s">'地點名稱或座標，例如「Kyoto, Japan」'</span> },
+        type: {
+          type: <span class="s">'string'</span>,
+          enum: [<span class="s">'tourist_attraction'</span>, <span class="s">'restaurant'</span>, <span class="s">'lodging'</span>, <span class="s">'shopping_mall'</span>],
+          description: <span class="s">'地點類型，不確定時不傳此欄'</span>,
+        },
+        radius_km: { type: <span class="s">'number'</span>, description: <span class="s">'搜尋半徑（公里），預設 5'</span> },
+      },
+      required: [<span class="s">'query'</span>, <span class="s">'location'</span>],
+    },
+  },
+  {
+    name: <span class="s">'get_directions'</span>,
+    description: <span class="s">`取得兩地之間的交通路線和時間。
+當用戶詢問如何從 A 到 B、交通時間、交通方式時呼叫。`</span>,
+    input_schema: {
+      type: <span class="s">'object'</span>,
+      properties: {
+        origin: { type: <span class="s">'string'</span>, description: <span class="s">'起點地址或地名'</span> },
+        destination: { type: <span class="s">'string'</span>, description: <span class="s">'終點地址或地名'</span> },
+        mode: {
+          type: <span class="s">'string'</span>,
+          enum: [<span class="s">'transit'</span>, <span class="s">'walking'</span>, <span class="s">'driving'</span>],
+          description: <span class="s">'交通方式，旅遊通常用 transit（大眾運輸）'</span>,
+        },
+      },
+      required: [<span class="s">'origin'</span>, <span class="s">'destination'</span>],
+    },
+  },
+  {
+    name: <span class="s">'estimate_budget'</span>,
+    description: <span class="s">`估算旅遊總費用，包含機票、住宿、餐飲、交通、門票。
+當用戶詢問「這樣規劃大概多少錢」或需要預算摘要時呼叫。`</span>,
+    input_schema: {
+      type: <span class="s">'object'</span>,
+      properties: {
+        destination: { type: <span class="s">'string'</span>, description: <span class="s">'目的地城市'</span> },
+        days: { type: <span class="s">'number'</span>, description: <span class="s">'旅遊天數'</span> },
+        travelers: { type: <span class="s">'number'</span>, description: <span class="s">'旅遊人數'</span> },
+        style: {
+          type: <span class="s">'string'</span>,
+          enum: [<span class="s">'budget'</span>, <span class="s">'mid-range'</span>, <span class="s">'luxury'</span>],
+          description: <span class="s">'旅遊預算等級'</span>,
+        },
+        flight_cost_twd: { type: <span class="s">'number'</span>, description: <span class="s">'已知機票費用（台幣），從 search_flights 結果取得'</span> },
+      },
+      required: [<span class="s">'destination'</span>, <span class="s">'days'</span>, <span class="s">'travelers'</span>],
+    },
+  },
+]</pre>
+      </div>
+
+      <div class="tip-box"><p>description 寫清楚呼叫時機（「當用戶詢問...時呼叫」）比寫功能說明更有效。Claude 需要知道的是「什麼情況下該用這個工具」，不是「這個工具做什麼」。</p></div>
+    </div>
+
+    <!-- TOOL LOOP -->
+    <div id="tool-loop" class="section">
+      <div class="section-label">執行迴圈實作</div>
+      <h2>Tool Use 執行迴圈</h2>
+      <p>Tool Use 不是單次來回，而是一個迴圈：Claude 說「我要用工具」→ 你執行工具 → 你把結果給 Claude → Claude 說「我還需要另一個工具」或「我可以回答了」。這個迴圈一直到 Claude 的 stop_reason 是 <code>end_turn</code> 為止。</p>
+
+      <div class="tool-flow">
+        <div class="tool-flow-header">TOOL USE EXECUTION LOOP</div>
+        <div class="tool-step">
+          <div class="tool-step-idx">1</div>
+          <div class="tool-step-who who-app">APP</div>
+          <div class="tool-step-content">呼叫 Claude API，帶入 messages 和 tools 陣列，傳送用戶請求</div>
+        </div>
+        <div class="tool-step">
+          <div class="tool-step-idx">2</div>
+          <div class="tool-step-who who-claude">CLAUDE</div>
+          <div class="tool-step-content">分析請求，決定需要哪些工具。回傳 stop_reason: "tool_use"，content 包含一或多個 tool_use block（name + input）</div>
+        </div>
+        <div class="tool-step">
+          <div class="tool-step-idx">3</div>
+          <div class="tool-step-who who-app">APP</div>
+          <div class="tool-step-content">讀取所有 tool_use blocks，並行呼叫對應的真實 API（Amadeus、Google Maps 等），收集結果</div>
+        </div>
+        <div class="tool-step">
+          <div class="tool-step-idx">4</div>
+          <div class="tool-step-who who-api">EXT API</div>
+          <div class="tool-step-content">Amadeus / Google Maps API 回傳真實資料：航班清單、地點列表、路線資訊</div>
+        </div>
+        <div class="tool-step">
+          <div class="tool-step-idx">5</div>
+          <div class="tool-step-who who-app">APP</div>
+          <div class="tool-step-content">把 Claude 的 assistant 訊息 + tool_result 訊息（每個工具一筆）加回 messages，再次呼叫 Claude API</div>
+        </div>
+        <div class="tool-step">
+          <div class="tool-step-idx">6</div>
+          <div class="tool-step-who who-claude">CLAUDE</div>
+          <div class="tool-step-content">讀取工具結果，若需要更多資料重複 2-5，否則生成最終回覆，stop_reason: "end_turn"</div>
+        </div>
+      </div>
+
+      <h3>完整執行迴圈程式碼</h3>
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">TYPESCRIPT</span>
+          <span class="code-file">src/lib/tool-loop.ts</span>
+          <button class="code-copy" onclick="copyCode(this)">copy</button>
+        </div>
+        <pre><span class="k">import</span> Anthropic <span class="k">from</span> <span class="s">'@anthropic-ai/sdk'</span>
+<span class="k">import</span> { <span class="f">executeTool</span> } <span class="k">from</span> <span class="s">'@/lib/tools/executor'</span>
+<span class="k">import</span> { <span class="v">TRAVEL_TOOLS</span> } <span class="k">from</span> <span class="s">'@/lib/tools/travel-tools'</span>
+<span class="k">import type</span> { <span class="f">Message</span> } <span class="k">from</span> <span class="s">'@/types'</span>
+
+<span class="k">const</span> anthropic = <span class="k">new</span> <span class="f">Anthropic</span>({ apiKey: process.env.<span class="v">ANTHROPIC_API_KEY</span>! })
+
+<span class="c">// 回調類型：讓前端可以即時顯示工具執行狀態</span>
+<span class="k">type</span> <span class="f">OnToolCall</span> = (name: <span class="s">string</span>, input: <span class="s">unknown</span>) => <span class="k">void</span>
+<span class="k">type</span> <span class="f">OnToolResult</span> = (name: <span class="s">string</span>, result: <span class="s">unknown</span>) => <span class="k">void</span>
+
+<span class="k">export async function</span> <span class="f">runTravelAgent</span>(
+  userMessages: <span class="f">Message</span>[],
+  system: <span class="s">string</span>,
+  callbacks?: { <span class="f">onToolCall</span>?: <span class="f">OnToolCall</span>; <span class="f">onToolResult</span>?: <span class="f">OnToolResult</span> }
+): <span class="k">Promise</span>&lt;<span class="s">string</span>&gt; {
+  <span class="c">// 工作用 messages 陣列，從呼叫者傳入的訊息開始</span>
+  <span class="k">const</span> messages: Anthropic.<span class="f">Messages</span>.<span class="f">MessageParam</span>[] = userMessages.<span class="f">map</span>(m => ({
+    role: m.role,
+    content: m.content,
+  }))
+
+  <span class="k">const</span> <span class="v">MAX_ITERATIONS</span> = <span class="v">10</span> <span class="c">// 防止無限迴圈</span>
+  <span class="k">let</span> iteration = <span class="v">0</span>
+
+  <span class="k">while</span> (iteration < <span class="v">MAX_ITERATIONS</span>) {
+    iteration++
+
+    <span class="k">const</span> response = <span class="k">await</span> anthropic.messages.<span class="f">create</span>({
+      model: <span class="s">'claude-sonnet-4-20250514'</span>,
+      max_tokens: <span class="v">4096</span>,
+      system,
+      tools: <span class="v">TRAVEL_TOOLS</span>,
+      messages,
+    })
+
+    <span class="c">// 情況 1：Claude 完成，直接回傳文字</span>
+    <span class="k">if</span> (response.stop_reason === <span class="s">'end_turn'</span>) {
+      <span class="k">const</span> textBlock = response.content.<span class="f">find</span>(b => b.type === <span class="s">'text'</span>)
+      <span class="k">return</span> textBlock?.type === <span class="s">'text'</span> ? textBlock.text : <span class="s">''</span>
+    }
+
+    <span class="c">// 情況 2：Claude 要使用工具</span>
+    <span class="k">if</span> (response.stop_reason === <span class="s">'tool_use'</span>) {
+      <span class="c">// 把 Claude 這輪的回覆加進 messages</span>
+      messages.<span class="f">push</span>({ role: <span class="s">'assistant'</span>, content: response.content })
+
+      <span class="c">// 取出所有 tool_use blocks</span>
+      <span class="k">const</span> toolUseBlocks = response.content.<span class="f">filter</span>(
+        (b): b <span class="k">is</span> Anthropic.<span class="f">Messages</span>.<span class="f">ToolUseBlock</span> => b.type === <span class="s">'tool_use'</span>
+      )
+
+      <span class="c">// 並行執行所有工具呼叫</span>
+      <span class="k">const</span> toolResults = <span class="k">await</span> <span class="f">Promise</span>.<span class="f">all</span>(
+        toolUseBlocks.<span class="f">map</span>(<span class="k">async</span> (block) => {
+          callbacks?.onToolCall?.(block.name, block.input)
+          <span class="k">const</span> result = <span class="k">await</span> <span class="f">executeTool</span>(block.name, block.input)
+          callbacks?.onToolResult?.(block.name, result)
+          <span class="k">return</span> {
+            type: <span class="s">'tool_result'</span> <span class="k">as const</span>,
+            tool_use_id: block.id,
+            content: <span class="f">JSON</span>.<span class="f">stringify</span>(result),
+          }
+        })
+      )
+
+      <span class="c">// 把工具結果加進 messages，繼續迴圈</span>
+      messages.<span class="f">push</span>({ role: <span class="s">'user'</span>, content: toolResults })
+    }
+  }
+
+  <span class="k">throw new</span> <span class="f">Error</span>(<span class="s">'Tool loop exceeded maximum iterations'</span>)
+}</pre>
+      </div>
+
+      <h3>工具執行器：路由到真實 API</h3>
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">TYPESCRIPT</span>
+          <span class="code-file">src/lib/tools/executor.ts</span>
+          <button class="code-copy" onclick="copyCode(this)">copy</button>
+        </div>
+        <pre><span class="k">import</span> { <span class="f">searchFlights</span> } <span class="k">from</span> <span class="s">'./amadeus'</span>
+<span class="k">import</span> { <span class="f">searchPlaces</span>, <span class="f">getDirections</span> } <span class="k">from</span> <span class="s">'./maps'</span>
+<span class="k">import</span> { <span class="f">estimateBudget</span> } <span class="k">from</span> <span class="s">'./budget'</span>
+
+<span class="k">export async function</span> <span class="f">executeTool</span>(name: <span class="s">string</span>, input: <span class="s">unknown</span>): <span class="k">Promise</span>&lt;<span class="s">unknown</span>&gt; {
+  <span class="k">switch</span> (name) {
+    <span class="k">case</span> <span class="s">'search_flights'</span>:
+      <span class="k">return</span> <span class="f">searchFlights</span>(input <span class="k">as</span> <span class="f">SearchFlightsInput</span>)
+    <span class="k">case</span> <span class="s">'search_places'</span>:
+      <span class="k">return</span> <span class="f">searchPlaces</span>(input <span class="k">as</span> <span class="f">SearchPlacesInput</span>)
+    <span class="k">case</span> <span class="s">'get_directions'</span>:
+      <span class="k">return</span> <span class="f">getDirections</span>(input <span class="k">as</span> <span class="f">GetDirectionsInput</span>)
+    <span class="k">case</span> <span class="s">'estimate_budget'</span>:
+      <span class="k">return</span> <span class="f">estimateBudget</span>(input <span class="k">as</span> <span class="f">EstimateBudgetInput</span>)
+    <span class="k">default</span>:
+      <span class="k">throw new</span> <span class="f">Error</span>(<span class="s">`Unknown tool: </span>${name}<span class="s">`</span>)
+  }
+}</pre>
+      </div>
+    </div>
+
+    <!-- MAPS -->
+    <div id="maps" class="section">
+      <div class="section-label">Google Maps 整合</div>
+      <h2>Google Maps API 串接</h2>
+      <p>我們用到兩個 Google Maps API：Places API（搜尋景點餐廳）和 Directions API（路線規劃）。兩者都在伺服器端呼叫，API key 不會暴露到前端。</p>
+
+      <div class="info-box"><p>Google Cloud Console 啟用：Maps JavaScript API、Places API (New)、Directions API、Geocoding API。建立一組 API key，設定 HTTP referrer 限制（加入你的 Vercel domain）。環境變數：<code>GOOGLE_MAPS_API_KEY</code>。</p></div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">TYPESCRIPT</span>
+          <span class="code-file">src/lib/tools/maps.ts</span>
+          <button class="code-copy" onclick="copyCode(this)">copy</button>
+        </div>
+        <pre><span class="k">const</span> <span class="v">MAPS_KEY</span> = process.env.<span class="v">GOOGLE_MAPS_API_KEY</span>!
+
+<span class="k">export interface</span> <span class="f">SearchPlacesInput</span> {
+  query: <span class="s">string</span>
+  location: <span class="s">string</span>
+  type?: <span class="s">string</span>
+  radius_km?: <span class="s">number</span>
+}
+
+<span class="k">export async function</span> <span class="f">searchPlaces</span>(input: <span class="f">SearchPlacesInput</span>) {
+  <span class="c">// 先用 Geocoding API 把地名轉座標</span>
+  <span class="k">const</span> geoRes = <span class="k">await</span> <span class="f">fetch</span>(
+    <span class="s">`https://maps.googleapis.com/maps/api/geocode/json?address=</span>${<span class="f">encodeURIComponent</span>(input.location)}<span class="s">&key=</span>${<span class="v">MAPS_KEY</span>}<span class="s">`</span>
+  )
+  <span class="k">const</span> geoData = <span class="k">await</span> geoRes.<span class="f">json</span>()
+  <span class="k">const</span> { lat, lng } = geoData.results[<span class="v">0</span>].geometry.location
+
+  <span class="c">// 用 Places API 搜尋周邊</span>
+  <span class="k">const</span> radius = (input.radius_km ?? <span class="v">5</span>) * <span class="v">1000</span>
+  <span class="k">const</span> params = <span class="k">new</span> <span class="f">URLSearchParams</span>({
+    location: <span class="s">`</span>${lat}<span class="s">,</span>${lng}<span class="s">`</span>,
+    radius: <span class="s">String</span>(radius),
+    keyword: input.query,
+    key: <span class="v">MAPS_KEY</span>,
+    language: <span class="s">'zh-TW'</span>,
+    ...(input.type ? { type: input.type } : {}),
+  })
+
+  <span class="k">const</span> res = <span class="k">await</span> <span class="f">fetch</span>(
+    <span class="s">`https://maps.googleapis.com/maps/api/place/nearbysearch/json?</span>${params}<span class="s">`</span>
+  )
+  <span class="k">const</span> data = <span class="k">await</span> res.<span class="f">json</span>()
+
+  <span class="c">// 回傳精簡版資料（避免把大量 JSON 塞給 Claude）</span>
+  <span class="k">return</span> data.results.<span class="f">slice</span>(<span class="v">0</span>, <span class="v">5</span>).<span class="f">map</span>((p: <span class="s">any</span>) => ({
+    name: p.name,
+    rating: p.rating,
+    address: p.vicinity,
+    types: p.types.<span class="f">slice</span>(<span class="v">0</span>, <span class="v">3</span>),
+    place_id: p.place_id,
+    lat: p.geometry.location.lat,
+    lng: p.geometry.location.lng,
+  }))
+}
+
+<span class="k">export interface</span> <span class="f">GetDirectionsInput</span> {
+  origin: <span class="s">string</span>
+  destination: <span class="s">string</span>
+  mode?: <span class="s">'transit'</span> | <span class="s">'walking'</span> | <span class="s">'driving'</span>
+}
+
+<span class="k">export async function</span> <span class="f">getDirections</span>(input: <span class="f">GetDirectionsInput</span>) {
+  <span class="k">const</span> params = <span class="k">new</span> <span class="f">URLSearchParams</span>({
+    origin: input.origin,
+    destination: input.destination,
+    mode: input.mode ?? <span class="s">'transit'</span>,
+    key: <span class="v">MAPS_KEY</span>,
+    language: <span class="s">'zh-TW'</span>,
+  })
+
+  <span class="k">const</span> res = <span class="k">await</span> <span class="f">fetch</span>(
+    <span class="s">`https://maps.googleapis.com/maps/api/directions/json?</span>${params}<span class="s">`</span>
+  )
+  <span class="k">const</span> data = <span class="k">await</span> res.<span class="f">json</span>()
+  <span class="k">const</span> route = data.routes[<span class="v">0</span>]?.legs[<span class="v">0</span>]
+
+  <span class="k">if</span> (!route) <span class="k">return</span> { error: <span class="s">'找不到路線'</span> }
+
+  <span class="k">return</span> {
+    duration: route.duration.text,
+    distance: route.distance.text,
+    steps: route.steps.<span class="f">slice</span>(<span class="v">0</span>, <span class="v">5</span>).<span class="f">map</span>((s: <span class="s">any</span>) => ({
+      instruction: s.html_instructions.<span class="f">replace</span>(<span class="s">/&lt;[^&gt;]*&gt;/g</span>, <span class="s">''</span>),
+      duration: s.duration.text,
+    })),
+  }
+}</pre>
+      </div>
+
+      <h3>前端 Google Maps 嵌入</h3>
+      <p>用 <code>@react-google-maps/api</code> 套件在前端顯示地圖，把 Claude 取得的景點座標轉成地圖標記，讓用戶直觀看到行程地點分布。</p>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">TYPESCRIPT</span>
+          <span class="code-file">src/components/travel/TripMap.tsx</span>
+          <button class="code-copy" onclick="copyCode(this)">copy</button>
+        </div>
+        <pre><span class="s">'use client'</span>
+<span class="k">import</span> { <span class="f">GoogleMap</span>, <span class="f">Marker</span>, <span class="f">useJsApiLoader</span> } <span class="k">from</span> <span class="s">'@react-google-maps/api'</span>
+
+<span class="k">interface</span> <span class="f">Place</span> { name: <span class="s">string</span>; lat: <span class="s">number</span>; lng: <span class="s">number</span> }
+
+<span class="k">export function</span> <span class="f">TripMap</span>({ places }: { places: <span class="f">Place</span>[] }) {
+  <span class="k">const</span> { isLoaded } = <span class="f">useJsApiLoader</span>({
+    googleMapsApiKey: process.env.<span class="v">NEXT_PUBLIC_GOOGLE_MAPS_KEY</span>!,
+  })
+
+  <span class="k">if</span> (!isLoaded || places.<span class="f">length</span> === <span class="v">0</span>) <span class="k">return</span> <span class="k">null</span>
+
+  <span class="k">const</span> center = { lat: places[<span class="v">0</span>].lat, lng: places[<span class="v">0</span>].lng }
+
+  <span class="k">return</span> (
+    &lt;<span class="f">GoogleMap</span>
+      mapContainerStyle={{ width: <span class="s">'100%'</span>, height: <span class="s">'360px'</span>, borderRadius: <span class="s">'4px'</span> }}
+      center={center}
+      zoom={<span class="v">13</span>}
+      options={{ disableDefaultUI: <span class="k">true</span>, zoomControl: <span class="k">true</span> }}
+    &gt;
+      {places.<span class="f">map</span>((p, i) => (
+        &lt;<span class="f">Marker</span> key={i} position={{ lat: p.lat, lng: p.lng }} title={p.name} /&gt;
+      ))}
+    &lt;/<span class="f">GoogleMap</span>&gt;
+  )
+}</pre>
+      </div>
+    </div>
+
+    <!-- FLIGHTS -->
+    <div id="flights" class="section">
+      <div class="section-label">Amadeus 航班 API</div>
+      <h2>Amadeus Flight Search 串接</h2>
+      <p>Amadeus 提供真實的全球航班資料，免費帳號可以呼叫 test environment（有真實航班資料，不可實際訂票）。正式上線換到 production API key 即可串接真實預訂。</p>
+
+      <div class="warn-box"><p>Amadeus API 需要先取得 access token（OAuth 2.0 Client Credentials flow），token 有效期 1799 秒。需要在伺服器端快取 token，不要每次請求都重新取得。</p></div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">TYPESCRIPT</span>
+          <span class="code-file">src/lib/tools/amadeus.ts</span>
+          <button class="code-copy" onclick="copyCode(this)">copy</button>
+        </div>
+        <pre><span class="k">const</span> <span class="v">AMADEUS_BASE</span> = <span class="s">'https://test.api.amadeus.com'</span>
+
+<span class="c">// 簡易記憶體快取（production 請用 Redis 或 Supabase）</span>
+<span class="k">let</span> tokenCache: { token: <span class="s">string</span>; expiresAt: <span class="s">number</span> } | <span class="k">null</span> = <span class="k">null</span>
+
+<span class="k">async function</span> <span class="f">getAccessToken</span>() {
+  <span class="k">if</span> (tokenCache && Date.<span class="f">now</span>() < tokenCache.expiresAt - <span class="v">60000</span>) {
+    <span class="k">return</span> tokenCache.token
+  }
+  <span class="k">const</span> res = <span class="k">await</span> <span class="f">fetch</span>(<span class="s">`</span>${<span class="v">AMADEUS_BASE</span>}<span class="s">/v1/security/oauth2/token`</span>, {
+    method: <span class="s">'POST'</span>,
+    headers: { <span class="s">'Content-Type'</span>: <span class="s">'application/x-www-form-urlencoded'</span> },
+    body: <span class="k">new</span> <span class="f">URLSearchParams</span>({
+      grant_type: <span class="s">'client_credentials'</span>,
+      client_id: process.env.<span class="v">AMADEUS_API_KEY</span>!,
+      client_secret: process.env.<span class="v">AMADEUS_API_SECRET</span>!,
+    }),
+  })
+  <span class="k">const</span> data = <span class="k">await</span> res.<span class="f">json</span>()
+  tokenCache = { token: data.access_token, expiresAt: Date.<span class="f">now</span>() + data.expires_in * <span class="v">1000</span> }
+  <span class="k">return</span> tokenCache.token
+}
+
+<span class="k">export interface</span> <span class="f">SearchFlightsInput</span> {
+  origin: <span class="s">string</span>
+  destination: <span class="s">string</span>
+  departure_date: <span class="s">string</span>
+  return_date?: <span class="s">string</span>
+  adults?: <span class="s">number</span>
+}
+
+<span class="k">export async function</span> <span class="f">searchFlights</span>(input: <span class="f">SearchFlightsInput</span>) {
+  <span class="k">const</span> token = <span class="k">await</span> <span class="f">getAccessToken</span>()
+
+  <span class="k">const</span> params = <span class="k">new</span> <span class="f">URLSearchParams</span>({
+    originLocationCode: input.origin,
+    destinationLocationCode: input.destination,
+    departureDate: input.departure_date,
+    adults: <span class="s">String</span>(input.adults ?? <span class="v">1</span>),
+    max: <span class="s">'5'</span>,
+    currencyCode: <span class="s">'TWD'</span>,
+    ...(input.return_date ? { returnDate: input.return_date } : {}),
+  })
+
+  <span class="k">const</span> res = <span class="k">await</span> <span class="f">fetch</span>(
+    <span class="s">`</span>${<span class="v">AMADEUS_BASE</span>}<span class="s">/v2/shopping/flight-offers?</span>${params}<span class="s">`</span>,
+    { headers: { Authorization: <span class="s">`Bearer </span>${token}<span class="s">`</span> } }
+  )
+  <span class="k">const</span> data = <span class="k">await</span> res.<span class="f">json</span>()
+
+  <span class="k">if</span> (!data.data) <span class="k">return</span> { error: <span class="s">'查無航班，請確認機場代碼和日期'</span> }
+
+  <span class="c">// 精簡回傳：避免 Amadeus 原始回應的巨大 JSON 造成 token 浪費</span>
+  <span class="k">return</span> data.data.<span class="f">slice</span>(<span class="v">0</span>, <span class="v">5</span>).<span class="f">map</span>((offer: <span class="s">any</span>) => {
+    <span class="k">const</span> seg = offer.itineraries[<span class="v">0</span>].segments[<span class="v">0</span>]
+    <span class="k">return</span> {
+      airline: seg.carrierCode,
+      flight: <span class="s">`</span>${seg.carrierCode}<span class="s"> </span>${seg.number}<span class="s">`</span>,
+      departure: seg.departure.at,
+      arrival: seg.arrival.at,
+      duration: offer.itineraries[<span class="v">0</span>].duration,
+      stops: offer.itineraries[<span class="v">0</span>].segments.<span class="f">length</span> - <span class="v">1</span>,
+      price_twd: <span class="f">Math</span>.<span class="f">round</span>(<span class="f">Number</span>(offer.price.total)),
+    }
+  })
+}</pre>
+      </div>
+
+      <div class="info-box"><p>Amadeus test API 的 IATA 代碼查詢：台北桃園 = TPE、大阪關西 = KIX、東京成田 = NRT、東京羽田 = HND、巴黎戴高樂 = CDG。在 prompt 中教 Claude 這些常用代碼，減少它猜錯的機率。</p></div>
+    </div>
+
+    <!-- REACT QUERY -->
+    <div id="react-query" class="section">
+      <div class="section-label">React Query 狀態管理</div>
+      <h2>用 React Query 管理工具執行狀態</h2>
+      <p>Tool Use 有一個 UX 問題：用戶送出訊息後，Claude 在後端跑工具迴圈可能需要 5-15 秒。這段時間前端要顯示「正在搜尋航班...」「正在查詢景點...」的進度狀態。我們用 Server-Sent Events（SSE）搭配 React Query 來解決這個問題。</p>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">TYPESCRIPT</span>
+          <span class="code-file">src/app/api/travel/route.ts</span>
+          <button class="code-copy" onclick="copyCode(this)">copy</button>
+        </div>
+        <pre><span class="k">import</span> { <span class="f">NextRequest</span> } <span class="k">from</span> <span class="s">'next/server'</span>
+<span class="k">import</span> { z } <span class="k">from</span> <span class="s">'zod'</span>
+<span class="k">import</span> { <span class="f">runTravelAgent</span> } <span class="k">from</span> <span class="s">'@/lib/tool-loop'</span>
+<span class="k">import</span> { <span class="v">TRAVEL_PLANNER_SYSTEM</span> } <span class="k">from</span> <span class="s">'@/lib/prompts/travel'</span>
+
+<span class="k">const</span> <span class="v">TravelSchema</span> = z.<span class="f">object</span>({
+  messages: z.<span class="f">array</span>(z.<span class="f">object</span>({ role: z.<span class="f">enum</span>([<span class="s">'user'</span>, <span class="s">'assistant'</span>]), content: z.<span class="f">string</span>() })),
+})
+
+<span class="k">export async function</span> <span class="f">POST</span>(req: <span class="f">NextRequest</span>) {
+  <span class="k">const</span> parsed = <span class="v">TravelSchema</span>.<span class="f">safeParse</span>(<span class="k">await</span> req.<span class="f">json</span>())
+  <span class="k">if</span> (!parsed.success) <span class="k">return</span> <span class="f">Response</span>.<span class="f">json</span>({ error: <span class="s">'Invalid input'</span> }, { status: <span class="v">400</span> })
+
+  <span class="k">const</span> encoder = <span class="k">new</span> <span class="f">TextEncoder</span>()
+
+  <span class="k">const</span> stream = <span class="k">new</span> <span class="f">ReadableStream</span>({
+    <span class="k">async</span> <span class="f">start</span>(controller) {
+      <span class="k">const</span> <span class="f">send</span> = (event: <span class="s">string</span>, data: <span class="s">unknown</span>) =>
+        controller.<span class="f">enqueue</span>(encoder.<span class="f">encode</span>(<span class="s">`event: </span>${event}<span class="s">\ndata: </span>${<span class="f">JSON</span>.<span class="f">stringify</span>(data)}<span class="s">\n\n`</span>))
+
+      <span class="k">try</span> {
+        <span class="k">const</span> result = <span class="k">await</span> <span class="f">runTravelAgent</span>(
+          parsed.data.messages,
+          <span class="v">TRAVEL_PLANNER_SYSTEM</span>,
+          {
+            <span class="f">onToolCall</span>: (name, input) => <span class="f">send</span>(<span class="s">'tool_call'</span>, { name, input }),
+            <span class="f">onToolResult</span>: (name, result) => <span class="f">send</span>(<span class="s">'tool_result'</span>, { name, result }),
+          }
+        )
+        <span class="f">send</span>(<span class="s">'done'</span>, { text: result })
+      } <span class="k">catch</span> (err) {
+        <span class="f">send</span>(<span class="s">'error'</span>, { message: err <span class="k">instanceof</span> Error ? err.message : <span class="s">'Unknown error'</span> })
+      } <span class="k">finally</span> {
+        controller.<span class="f">close</span>()
+      }
+    },
+  })
+
+  <span class="k">return new</span> <span class="f">Response</span>(stream, {
+    headers: {
+      <span class="s">'Content-Type'</span>: <span class="s">'text/event-stream'</span>,
+      <span class="s">'Cache-Control'</span>: <span class="s">'no-cache'</span>,
+      <span class="s">'Connection'</span>: <span class="s">'keep-alive'</span>,
+    },
+  })
+}</pre>
+      </div>
+
+      <h3>前端 useTravel Hook</h3>
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">TYPESCRIPT</span>
+          <span class="code-file">src/hooks/useTravel.ts</span>
+          <button class="code-copy" onclick="copyCode(this)">copy</button>
+        </div>
+        <pre><span class="s">'use client'</span>
+<span class="k">import</span> { useState, useCallback } <span class="k">from</span> <span class="s">'react'</span>
+<span class="k">import type</span> { <span class="f">Message</span> } <span class="k">from</span> <span class="s">'@/types'</span>
+
+<span class="k">interface</span> <span class="f">ToolStatus</span> {
+  name: <span class="s">string</span>
+  status: <span class="s">'running'</span> | <span class="s">'done'</span>
+  result?: <span class="s">unknown</span>
+}
+
+<span class="k">export function</span> <span class="f">useTravel</span>() {
+  <span class="k">const</span> [messages, <span class="f">setMessages</span>] = <span class="f">useState</span>&lt;<span class="f">Message</span>[]&gt;([])
+  <span class="k">const</span> [toolStatuses, <span class="f">setToolStatuses</span>] = <span class="f">useState</span>&lt;<span class="f">ToolStatus</span>[]&gt;([])
+  <span class="k">const</span> [loading, <span class="f">setLoading</span>] = <span class="f">useState</span>(<span class="k">false</span>)
+  <span class="k">const</span> [places, <span class="f">setPlaces</span>] = <span class="f">useState</span>&lt;{name:<span class="s">string</span>;lat:<span class="s">number</span>;lng:<span class="s">number</span>}[]&gt;([])
+
+  <span class="k">const</span> <span class="f">ask</span> = <span class="f">useCallback</span>(<span class="k">async</span> (content: <span class="s">string</span>) => {
+    <span class="k">const</span> userMsg: <span class="f">Message</span> = { role: <span class="s">'user'</span>, content }
+    <span class="k">const</span> nextMessages = [...messages, userMsg]
+    <span class="f">setMessages</span>(nextMessages)
+    <span class="f">setLoading</span>(<span class="k">true</span>)
+    <span class="f">setToolStatuses</span>([])
+
+    <span class="k">const</span> res = <span class="k">await</span> <span class="f">fetch</span>(<span class="s">'/api/travel'</span>, {
+      method: <span class="s">'POST'</span>,
+      headers: { <span class="s">'Content-Type'</span>: <span class="s">'application/json'</span> },
+      body: <span class="f">JSON</span>.<span class="f">stringify</span>({ messages: nextMessages }),
+    })
+
+    <span class="k">const</span> reader = res.body!.<span class="f">getReader</span>()
+    <span class="k">const</span> decoder = <span class="k">new</span> <span class="f">TextDecoder</span>()
+
+    <span class="k">while</span> (<span class="k">true</span>) {
+      <span class="k">const</span> { done, value } = <span class="k">await</span> reader.<span class="f">read</span>()
+      <span class="k">if</span> (done) <span class="k">break</span>
+
+      <span class="k">const</span> lines = decoder.<span class="f">decode</span>(value).<span class="f">split</span>(<span class="s">'\n'</span>)
+      <span class="k">let</span> currentEvent = <span class="s">''</span>
+      <span class="k">for</span> (<span class="k">const</span> line <span class="k">of</span> lines) {
+        <span class="k">if</span> (line.<span class="f">startsWith</span>(<span class="s">'event: '</span>)) currentEvent = line.<span class="f">slice</span>(<span class="v">7</span>)
+        <span class="k">if</span> (!line.<span class="f">startsWith</span>(<span class="s">'data: '</span>)) <span class="k">continue</span>
+        <span class="k">const</span> payload = <span class="f">JSON</span>.<span class="f">parse</span>(line.<span class="f">slice</span>(<span class="v">6</span>))
+
+        <span class="k">if</span> (currentEvent === <span class="s">'tool_call'</span>) {
+          <span class="f">setToolStatuses</span>(prev => [...prev, { name: payload.name, status: <span class="s">'running'</span> }])
+        }
+        <span class="k">if</span> (currentEvent === <span class="s">'tool_result'</span>) {
+          <span class="f">setToolStatuses</span>(prev => prev.<span class="f">map</span>(t =>
+            t.name === payload.name ? { ...t, status: <span class="s">'done'</span>, result: payload.result } : t
+          ))
+          <span class="c">// 若是地點結果，更新地圖</span>
+          <span class="k">if</span> (payload.name === <span class="s">'search_places'</span> && <span class="f">Array</span>.<span class="f">isArray</span>(payload.result)) {
+            <span class="f">setPlaces</span>(payload.result)
+          }
+        }
+        <span class="k">if</span> (currentEvent === <span class="s">'done'</span>) {
+          <span class="f">setMessages</span>(prev => [...prev, { role: <span class="s">'assistant'</span>, content: payload.text }])
+          <span class="f">setLoading</span>(<span class="k">false</span>)
+        }
+      }
+    }
+  }, [messages])
+
+  <span class="k">return</span> { messages, toolStatuses, loading, places, <span class="f">ask</span> }
+}</pre>
+      </div>
+    </div>
+
+    <!-- UI -->
+    <div id="ui" class="section">
+      <div class="section-label">旅遊規劃 UI</div>
+      <h2>三欄式旅遊規劃介面</h2>
+      <p>旅遊規劃平台需要同時顯示：對話（左）、工具執行狀態（中）、地圖（右）。三欄布局讓用戶清楚看到 AI 正在做什麼，而不是盯著空白頁面等待。</p>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">TYPESCRIPT</span>
+          <span class="code-file">src/app/(app)/travel/page.tsx</span>
+          <button class="code-copy" onclick="copyCode(this)">copy</button>
+        </div>
+        <pre><span class="s">'use client'</span>
+<span class="k">import</span> { <span class="f">useTravel</span> } <span class="k">from</span> <span class="s">'@/hooks/useTravel'</span>
+<span class="k">import</span> { <span class="f">TripMap</span> } <span class="k">from</span> <span class="s">'@/components/travel/TripMap'</span>
+<span class="k">import</span> { <span class="f">ToolStatusPanel</span> } <span class="k">from</span> <span class="s">'@/components/travel/ToolStatusPanel'</span>
+<span class="k">import</span> { useState } <span class="k">from</span> <span class="s">'react'</span>
+
+<span class="k">export default function</span> <span class="f">TravelPage</span>() {
+  <span class="k">const</span> { messages, toolStatuses, loading, places, <span class="f">ask</span> } = <span class="f">useTravel</span>()
+  <span class="k">const</span> [input, <span class="f">setInput</span>] = <span class="f">useState</span>(<span class="s">''</span>)
+
+  <span class="k">const</span> <span class="f">handleSubmit</span> = (e: React.<span class="f">FormEvent</span>) => {
+    e.<span class="f">preventDefault</span>()
+    <span class="k">if</span> (!input.<span class="f">trim</span>() || loading) <span class="k">return</span>
+    <span class="f">ask</span>(input.<span class="f">trim</span>())
+    <span class="f">setInput</span>(<span class="s">''</span>)
+  }
+
+  <span class="k">return</span> (
+    &lt;<span class="t">div</span> style={{ display: <span class="s">'grid'</span>, gridTemplateColumns: <span class="s">'1fr 280px 1fr'</span>, gap: <span class="s">'16px'</span>, height: <span class="s">'calc(100vh - 80px)'</span> }}&gt;
+
+      {<span class="c">/* 左欄：對話 */</span>}
+      &lt;<span class="t">div</span> style={{ display: <span class="s">'flex'</span>, flexDirection: <span class="s">'column'</span>, gap: <span class="s">'12px'</span> }}&gt;
+        &lt;<span class="t">div</span> style={{ flex: <span class="v">1</span>, overflowY: <span class="s">'auto'</span> }}&gt;
+          {messages.<span class="f">map</span>((m, i) => (
+            &lt;<span class="t">div</span> key={i} style={{ marginBottom: <span class="s">'16px'</span>, textAlign: m.role === <span class="s">'user'</span> ? <span class="s">'right'</span> : <span class="s">'left'</span> }}&gt;
+              &lt;<span class="t">span</span> style={{ background: m.role === <span class="s">'user'</span> ? <span class="s">'#c8f055'</span> : <span class="s">'#18181f'</span>, color: m.role === <span class="s">'user'</span> ? <span class="s">'#0a0a0f'</span> : <span class="s">'#e8e8f0'</span>, padding: <span class="s">'10px 14px'</span>, borderRadius: <span class="s">'4px'</span>, display: <span class="s">'inline-block'</span>, maxWidth: <span class="s">'80%'</span>, whiteSpace: <span class="s">'pre-wrap'</span> }}&gt;
+                {m.content}
+              &lt;/<span class="t">span</span>&gt;
+            &lt;/<span class="t">div</span>&gt;
+          ))}
+          {loading && &lt;<span class="t">div</span> style={{ color: <span class="s">'#55556a'</span>, fontSize: <span class="s">'13px'</span> }}&gt;AI 正在規劃中...&lt;/<span class="t">div</span>&gt;}
+        &lt;/<span class="t">div</span>&gt;
+        &lt;<span class="t">form</span> onSubmit={handleSubmit} style={{ display: <span class="s">'flex'</span>, gap: <span class="s">'8px'</span> }}&gt;
+          &lt;<span class="t">input</span> value={input} onChange={e => <span class="f">setInput</span>(e.target.value)} placeholder=<span class="s">"我想去京都五天四夜，預算八萬台幣..."</span> style={{ flex: <span class="v">1</span>, background: <span class="s">'#111118'</span>, border: <span class="s">'1px solid rgba(255,255,255,0.07)'</span>, color: <span class="s">'#e8e8f0'</span>, padding: <span class="s">'10px 14px'</span>, borderRadius: <span class="s">'4px'</span> }} /&gt;
+          &lt;<span class="t">button</span> type=<span class="s">"submit"</span> disabled={loading}&gt;送出&lt;/<span class="t">button</span>&gt;
+        &lt;/<span class="t">form</span>&gt;
+      &lt;/<span class="t">div</span>&gt;
+
+      {<span class="c">/* 中欄：工具執行狀態 */</span>}
+      &lt;<span class="f">ToolStatusPanel</span> statuses={toolStatuses} /&gt;
+
+      {<span class="c">/* 右欄：地圖 */</span>}
+      &lt;<span class="t">div</span>&gt;
+        &lt;<span class="f">TripMap</span> places={places} /&gt;
+      &lt;/<span class="t">div</span>&gt;
+
+    &lt;/<span class="t">div</span>&gt;
+  )
+}</pre>
+      </div>
+
+      <h3>工具狀態面板元件</h3>
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">TYPESCRIPT</span>
+          <span class="code-file">src/components/travel/ToolStatusPanel.tsx</span>
+          <button class="code-copy" onclick="copyCode(this)">copy</button>
+        </div>
+        <pre><span class="k">const</span> <span class="v">TOOL_LABELS</span>: Record&lt;<span class="s">string</span>, <span class="s">string</span>&gt; = {
+  search_flights: <span class="s">'搜尋航班'</span>,
+  search_places: <span class="s">'查詢景點'</span>,
+  get_directions: <span class="s">'規劃路線'</span>,
+  estimate_budget: <span class="s">'估算預算'</span>,
+}
+
+<span class="k">export function</span> <span class="f">ToolStatusPanel</span>({ statuses }: { statuses: <span class="f">ToolStatus</span>[] }) {
+  <span class="k">if</span> (statuses.<span class="f">length</span> === <span class="v">0</span>) {
+    <span class="k">return</span> (
+      &lt;<span class="t">div</span> style={{ color: <span class="s">'#55556a'</span>, fontSize: <span class="s">'12px'</span>, fontFamily: <span class="s">'DM Mono'</span>, padding: <span class="s">'20px 0'</span> }}&gt;
+        工具執行記錄會顯示在這裡
+      &lt;/<span class="t">div</span>&gt;
+    )
+  }
+  <span class="k">return</span> (
+    &lt;<span class="t">div</span> style={{ display: <span class="s">'flex'</span>, flexDirection: <span class="s">'column'</span>, gap: <span class="s">'8px'</span> }}&gt;
+      {statuses.<span class="f">map</span>((s, i) => (
+        &lt;<span class="t">div</span> key={i} style={{ background: <span class="s">'#111118'</span>, border: <span class="s">`1px solid ${s.status === 'done' ? 'rgba(77,232,194,0.3)' : 'rgba(255,255,255,0.07)'}`</span>, borderRadius: <span class="s">'4px'</span>, padding: <span class="s">'10px 14px'</span> }}&gt;
+          &lt;<span class="t">div</span> style={{ fontFamily: <span class="s">'DM Mono'</span>, fontSize: <span class="s">'10px'</span>, color: s.status === <span class="s">'done'</span> ? <span class="s">'#4de8c2'</span> : <span class="s">'#c8f055'</span>, marginBottom: <span class="s">'4px'</span> }}&gt;
+            {s.status === <span class="s">'running'</span> ? <span class="s">'⟳'</span> : <span class="s">'✓'</span>} {<span class="v">TOOL_LABELS</span>[s.name] ?? s.name}
+          &lt;/<span class="t">div</span>&gt;
+          {s.status === <span class="s">'done'</span> && s.result && (
+            &lt;<span class="t">div</span> style={{ fontSize: <span class="s">'11px'</span>, color: <span class="s">'#55556a'</span> }}&gt;
+              {<span class="f">Array</span>.<span class="f">isArray</span>(s.result) ? <span class="s">`${(s.result as any[]).length} 筆結果`</span> : <span class="s">'完成'</span>}
+            &lt;/<span class="t">div</span>&gt;
+          )}
+        &lt;/<span class="t">div</span>&gt;
+      ))}
+    &lt;/<span class="t">div</span>&gt;
+  )
+}</pre>
+      </div>
+    </div>
+
+    <!-- DATABASE -->
+    <div id="db" class="section">
+      <div class="section-label">資料庫設計</div>
+      <h2>旅遊行程資料庫 Schema</h2>
+      <p>在 Class 01 的 conversations/messages 基礎上，加入旅遊行程專用的表格：trip（行程主體）和 trip_places（行程中的地點）。這讓用戶可以儲存、重新編輯、分享行程。</p>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">SQL</span>
+          <span class="code-file">supabase/migrations/002_travel.sql</span>
+          <button class="code-copy" onclick="copyCode(this)">copy</button>
+        </div>
+        <pre><span class="c">-- ===== TRIPS =====</span>
+<span class="k">create table</span> trips (
+  id            uuid <span class="k">default</span> <span class="f">gen_random_uuid</span>() <span class="k">primary key</span>,
+  user_id       uuid <span class="k">references</span> profiles(id) <span class="k">on delete cascade not null</span>,
+  title         text <span class="k">not null</span>,
+  destination   text <span class="k">not null</span>,
+  start_date    date,
+  end_date      date,
+  budget_twd    integer,
+  travelers     integer <span class="k">default</span> <span class="v">1</span>,
+  style         text <span class="k">check</span>(style <span class="k">in</span>(<span class="s">'budget'</span>, <span class="s">'mid-range'</span>, <span class="s">'luxury'</span>)),
+  summary       text,                         <span class="c">-- Claude 生成的行程摘要</span>
+  raw_itinerary jsonb,                         <span class="c">-- 完整行程 JSON</span>
+  created_at    timestamptz <span class="k">default</span> <span class="f">now</span>() <span class="k">not null</span>
+);
+
+<span class="c">-- ===== TRIP_PLACES =====</span>
+<span class="k">create table</span> trip_places (
+  id          uuid <span class="k">default</span> <span class="f">gen_random_uuid</span>() <span class="k">primary key</span>,
+  trip_id     uuid <span class="k">references</span> trips(id) <span class="k">on delete cascade not null</span>,
+  name        text <span class="k">not null</span>,
+  place_id    text,                            <span class="c">-- Google Maps place_id</span>
+  lat         numeric(<span class="v">10</span>, <span class="v">7</span>),
+  lng         numeric(<span class="v">10</span>, <span class="v">7</span>),
+  visit_date  date,
+  visit_order integer,
+  duration_min integer,
+  notes       text,
+  created_at  timestamptz <span class="k">default</span> <span class="f">now</span>() <span class="k">not null</span>
+);
+
+<span class="k">create index</span> idx_trips_user_id <span class="k">on</span> trips(user_id);
+<span class="k">create index</span> idx_trip_places_trip_id <span class="k">on</span> trip_places(trip_id);
+
+<span class="c">-- ===== RLS =====</span>
+<span class="k">alter table</span> trips       <span class="k">enable row level security</span>;
+<span class="k">alter table</span> trip_places <span class="k">enable row level security</span>;
+
+<span class="k">create policy</span> <span class="s">"trips: own"</span> <span class="k">on</span> trips
+  <span class="k">for all using</span> (auth.<span class="f">uid</span>() = user_id);
+
+<span class="k">create policy</span> <span class="s">"trip_places: own trips"</span> <span class="k">on</span> trip_places
+  <span class="k">for all using</span> (
+    trip_id <span class="k">in</span> (<span class="k">select</span> id <span class="k">from</span> trips <span class="k">where</span> user_id = auth.<span class="f">uid</span>())
+  );
+
+<span class="c">-- 儲存行程的函式（在 Claude 生成完畢後呼叫）</span>
+<span class="k">create or replace function</span> <span class="f">save_trip_from_ai</span>(
+  p_user_id     uuid,
+  p_title       text,
+  p_destination text,
+  p_summary     text,
+  p_itinerary   jsonb,
+  p_places      jsonb   <span class="c">-- [{name, lat, lng, visit_date, visit_order}]</span>
+) <span class="k">returns</span> uuid <span class="k">as</span> <span class="s">$$</span>
+<span class="k">declare</span>
+  v_trip_id uuid;
+<span class="k">begin</span>
+  <span class="k">insert into</span> trips(user_id, title, destination, summary, raw_itinerary)
+  <span class="k">values</span>(p_user_id, p_title, p_destination, p_summary, p_itinerary)
+  <span class="k">returning</span> id <span class="k">into</span> v_trip_id;
+
+  <span class="k">insert into</span> trip_places(trip_id, name, lat, lng, visit_date, visit_order)
+  <span class="k">select</span> v_trip_id, p->><span class="s">'name'</span>, (p->><span class="s">'lat'</span>)::numeric, (p->><span class="s">'lng'</span>)::numeric,
+         (p->><span class="s">'visit_date'</span>)::date, (p->><span class="s">'visit_order'</span>)::integer
+  <span class="k">from</span> jsonb_array_elements(p_places) <span class="k">as</span> p;
+
+  <span class="k">return</span> v_trip_id;
+<span class="k">end</span>;
+<span class="s">$$</span> <span class="k">language</span> plpgsql security definer;</pre>
+      </div>
+    </div>
+
+    <!-- DELIVERABLE -->
+    <div id="deliverable" class="section">
+      <div class="deliverable">
+        <div class="deliverable-label">CLASS 02 DELIVERABLE</div>
+        <div class="deliverable-title">對話式 AI 旅遊規劃平台</div>
+        <div class="deliverable-desc">完成本堂課後，你擁有一個可以真正對話規劃旅遊的 AI 平台：</div>
+        <div class="deliverable-checks">
+          <div class="deliverable-check">用戶輸入自然語言（「我想去巴黎七天，預算十五萬台幣，喜歡博物館和美食」），AI 自動規劃完整行程</div>
+          <div class="deliverable-check">Claude 主動呼叫 Amadeus 搜尋真實航班資料，顯示時刻和票價</div>
+          <div class="deliverable-check">透過 Google Maps Places API 搜尋景點和餐廳，推薦有評分和地址的地點</div>
+          <div class="deliverable-check">地圖即時顯示推薦地點的位置，工具執行狀態面板讓用戶看到 AI 在做什麼</div>
+          <div class="deliverable-check">行程可儲存到 Supabase，RLS 確保用戶資料隔離，隨時回來繼續規劃</div>
+          <div class="deliverable-check">理解 Tool Use 執行迴圈，能把這個模式複製到任何需要外部 API 的 AI 功能</div>
+        </div>
+      </div>
+
+      <div class="info-box"><p>下一堂課延伸 Tool Use 概念，加入「Document AI」：讓用戶上傳 PDF 行程表或護照，Claude 讀取並自動填入資訊、識別衝突和問題。</p></div>
+    </div>
+
+    <a href="class3.html" class="next-card">
+      <div>
+        <div class="next-label">NEXT — CLASS 03</div>
+        <div class="next-title">Document AI — PDF 解析 + Vision + 智慧表單填寫</div>
+      </div>
+      <div class="next-arrow">→</div>
+    </a>
+  </main>
+</div>
+
+<script>
+function copyCode(btn) {
+  const pre = btn.closest('.code-block').querySelector('pre')
+  navigator.clipboard.writeText(pre.innerText).then(() => {
+    btn.textContent = 'copied!'
+    setTimeout(() => btn.textContent = 'copy', 2000)
+  })
+}
+
+const sections = document.querySelectorAll('[id]')
+const links = document.querySelectorAll('.sidebar-nav a')
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      links.forEach(l => l.classList.remove('active'))
+      const active = document.querySelector(`.sidebar-nav a[href="#${e.target.id}"]`)
+      if (active) active.classList.add('active')
+    }
+  })
+}, { rootMargin: '-60px 0px -70% 0px' })
+sections.forEach(s => obs.observe(s))
+</script>
+</body>
+</html>
