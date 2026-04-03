@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Class 03 — 智慧餐飲點餐系統 × Supabase Realtime | Build with Claude</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0f; --bg2: #111118; --bg3: #18181f;
+  --border: rgba(255,255,255,0.07); --border2: rgba(255,255,255,0.13);
+  --text: #e8e8f0; --text2: #8888a0; --text3: #55556a;
+  --accent: #c8f055; --accent2: #a0d040;
+  --purple: #9b8bff; --teal: #4de8c2; --coral: #ff7a5c;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Sora',sans-serif;font-size:15px;line-height:1.7;overflow-x:hidden}
+body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:80px 80px;pointer-events:none;z-index:0;opacity:0.4}
+
+nav{position:relative;border-bottom:1px solid var(--border);backdrop-filter:blur(20px);background:rgba(10,10,15,0.88)}
+.nav-inner{max-width:1100px;margin:0 auto;padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:60px}
+.nav-logo{font-family:'DM Mono',monospace;font-size:13px;color:var(--accent);letter-spacing:.05em;text-decoration:none}
+.nav-right{display:flex;align-items:center;gap:24px}
+.nav-links{display:flex;gap:24px}
+.nav-links a{font-size:13px;color:var(--text2);text-decoration:none;transition:color .2s}
+.nav-links a:hover{color:var(--text)}
+.nav-class{font-family:'DM Mono',monospace;font-size:11px;color:var(--text3);letter-spacing:.08em}
+
+.layout{max-width:1100px;margin:0 auto;padding:40px 32px 80px;display:grid;grid-template-columns:220px 1fr;gap:56px;position:relative;z-index:1}
+
+.sidebar{height:fit-content}
+.sidebar-label{font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);letter-spacing:.1em;margin-bottom:16px}
+.sidebar-nav{display:flex;flex-direction:column;gap:2px}
+.sidebar-nav a{font-size:12px;color:var(--text3);text-decoration:none;padding:7px 12px;border-radius:3px;border-left:2px solid transparent;transition:all .15s}
+.sidebar-nav a:hover{color:var(--text2);background:var(--bg3)}
+.sidebar-nav a.active{color:var(--accent);border-left-color:var(--accent);background:rgba(200,240,85,0.05)}
+.sidebar-sep{height:1px;background:var(--border);margin:14px 0}
+.sidebar-prev-next{display:flex;flex-direction:column;gap:8px}
+.sidebar-prev-next a{font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);text-decoration:none;letter-spacing:.05em;padding:7px 10px;border:1px solid var(--border);border-radius:3px;transition:all .15s}
+.sidebar-prev-next a:hover{border-color:var(--border2);color:var(--text2)}
+
+.class-badge{font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);letter-spacing:.1em;margin-bottom:20px;display:flex;align-items:center;gap:10px}
+.class-badge::after{content:'';flex:1;height:1px;background:rgba(200,240,85,0.2)}
+h1{font-family:'DM Serif Display',serif;font-size:clamp(32px,4vw,52px);line-height:1.1;letter-spacing:-.02em;margin-bottom:16px}
+h1 em{font-style:italic;color:var(--accent)}
+.class-desc{font-size:16px;color:var(--text2);line-height:1.75;margin-bottom:36px;max-width:640px}
+
+.outcome-box{background:rgba(77,232,194,0.05);border:1px solid rgba(77,232,194,0.2);border-radius:4px;padding:24px 28px;margin-bottom:48px}
+.outcome-label{font-family:'DM Mono',monospace;font-size:10px;color:var(--teal);letter-spacing:.1em;margin-bottom:10px}
+.outcome-text{font-size:14px;color:var(--text2);line-height:1.7}
+
+.stack-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:48px}
+.stack-pill{font-family:'DM Mono',monospace;font-size:11px;color:var(--text3);background:var(--bg3);border:1px solid var(--border);padding:5px 12px;border-radius:2px;letter-spacing:.04em}
+
+.section{margin-bottom:72px}
+.section-label{font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:20px;display:flex;align-items:center;gap:12px}
+.section-label::after{content:'';flex:1;height:1px;background:var(--border)}
+h2{font-family:'DM Serif Display',serif;font-size:28px;color:var(--text);margin-bottom:16px;letter-spacing:-.01em}
+h3{font-size:15px;font-weight:600;color:var(--text);margin-bottom:10px;margin-top:32px}
+p{color:var(--text2);margin-bottom:16px;line-height:1.75}
+ul,ol{padding-left:20px;margin-bottom:16px}
+li{color:var(--text2);line-height:1.75;margin-bottom:4px}
+li strong{color:var(--text);font-weight:500}
+
+.code-block{background:var(--bg3);border:1px solid var(--border);border-radius:4px;margin:20px 0;overflow:hidden}
+.code-header{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--border);background:var(--bg2)}
+.code-lang{font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);letter-spacing:.08em}
+.code-file{font-family:'DM Mono',monospace;font-size:10px;color:var(--teal)}
+.code-copy{font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);cursor:pointer;background:none;border:1px solid var(--border);padding:3px 9px;border-radius:2px;transition:all .15s}
+.code-copy:hover{border-color:var(--border2);color:var(--text2)}
+pre{padding:20px;overflow-x:auto;font-family:'DM Mono',monospace;font-size:12px;line-height:1.75;tab-size:2}
+.k{color:#9b8bff}.s{color:#4de8c2}.c{color:#55556a;font-style:italic}.v{color:#c8f055}.f{color:#ff7a5c}.t{color:#e8e8f0}.o{color:#ffd700}
+
+.steps{display:flex;flex-direction:column;gap:2px;margin:20px 0}
+.step{display:grid;grid-template-columns:44px 1fr;gap:16px;background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:20px 24px;align-items:flex-start}
+.step-num{font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);letter-spacing:.06em;padding-top:3px}
+.step-title{font-size:14px;font-weight:500;color:var(--text);margin-bottom:6px}
+.step-desc{font-size:13px;color:var(--text2);line-height:1.65}
+
+.concepts{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:20px 0}
+.concept-card{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:20px 24px}
+.concept-title{font-family:'DM Mono',monospace;font-size:11px;color:var(--purple);letter-spacing:.06em;margin-bottom:8px}
+.concept-body{font-size:13px;color:var(--text2);line-height:1.65}
+
+.info-box{border-left:2px solid var(--accent);padding:14px 20px;background:rgba(200,240,85,0.04);border-radius:0 4px 4px 0;margin:20px 0}
+.info-box p{margin:0;font-size:13px;color:var(--text2)}
+.warn-box{border-left:2px solid var(--coral);padding:14px 20px;background:rgba(255,122,92,0.04);border-radius:0 4px 4px 0;margin:20px 0}
+.warn-box p{margin:0;font-size:13px;color:var(--text2)}
+.tip-box{border-left:2px solid var(--purple);padding:14px 20px;background:rgba(155,139,255,0.04);border-radius:0 4px 4px 0;margin:20px 0}
+.tip-box p{margin:0;font-size:13px;color:var(--text2)}
+
+.arch-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:20px 0}
+.arch-card{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:20px 24px}
+.arch-role{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.1em;margin-bottom:8px}
+.role-customer{color:var(--accent)}
+.role-kitchen{color:var(--coral)}
+.role-admin{color:var(--purple)}
+.arch-desc{font-size:13px;color:var(--text2);line-height:1.6}
+
+.realtime-flow{background:var(--bg2);border:1px solid var(--border);border-radius:4px;overflow:hidden;margin:20px 0}
+.realtime-flow-header{padding:12px 20px;border-bottom:1px solid var(--border);font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);letter-spacing:.1em}
+.rt-step{display:grid;grid-template-columns:32px 110px 1fr;gap:0;border-bottom:1px solid var(--border)}
+.rt-step:last-child{border-bottom:none}
+.rt-idx{padding:14px 12px;font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);border-right:1px solid var(--border);display:flex;align-items:flex-start;padding-top:16px}
+.rt-who{padding:14px 16px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.06em;border-right:1px solid var(--border);display:flex;align-items:flex-start;padding-top:16px}
+.rt-content{padding:14px 18px;font-size:13px;color:var(--text2);line-height:1.65}
+
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:20px 0}
+.col-card{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:20px 24px}
+.col-card-title{font-family:'DM Mono',monospace;font-size:11px;color:var(--teal);letter-spacing:.06em;margin-bottom:10px}
+.col-card p{font-size:13px;margin-bottom:0}
+
+.deliverable{background:var(--bg2);border:1px solid rgba(200,240,85,0.2);border-radius:4px;padding:28px;margin:36px 0}
+.deliverable-label{font-family:'DM Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:.1em;margin-bottom:12px}
+.deliverable-title{font-size:17px;font-weight:500;color:var(--text);margin-bottom:8px}
+.deliverable-desc{font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:16px}
+.deliverable-checks{display:flex;flex-direction:column;gap:6px}
+.deliverable-check{font-size:13px;color:var(--text2);display:flex;gap:10px}
+.deliverable-check::before{content:'OK';color:var(--accent);font-family:'DM Mono',monospace;flex-shrink:0;font-size:10px;padding-top:3px}
+
+.next-card{display:flex;align-items:center;justify-content:space-between;background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:24px 28px;text-decoration:none;margin-top:48px;transition:border-color .2s}
+.next-card:hover{border-color:var(--accent)}
+.next-label{font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);letter-spacing:.1em;margin-bottom:6px}
+.next-title{font-size:15px;font-weight:500;color:var(--text)}
+.next-arrow{font-size:20px;color:var(--accent)}
+
+@media(max-width:768px){.layout{grid-template-columns:1fr;padding:40px 20px 60px}.sidebar{display:none}.concepts{grid-template-columns:1fr}.two-col{grid-template-columns:1fr}.arch-row{grid-template-columns:1fr}.rt-step{grid-template-columns:32px 1fr}}
+</style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a class="nav-logo" href="index.html">BUILD_WITH_CLAUDE</a>
+    <div class="nav-right">
+      <span class="nav-class">CLASS 03 / 10</span>
+      <div class="nav-links">
+        <a href="index.html">大綱</a>
+        <a href="class2.html">← 上一堂</a>
+        <a href="class4.html">下一堂 →</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-label">本堂內容</div>
+    <nav class="sidebar-nav">
+      <a href="#intro" class="active">課程目標</a>
+      <a href="#architecture">系統架構</a>
+      <a href="#menu-ai">AI 菜單推薦</a>
+      <a href="#voice">語音點餐</a>
+      <a href="#realtime">Supabase Realtime</a>
+      <a href="#kitchen">廚房顯示板</a>
+      <a href="#stripe">Stripe 結帳</a>
+      <a href="#db">資料庫設計</a>
+      <a href="#deliverable">本堂成品</a>
+    </nav>
+    <div class="sidebar-sep"></div>
+    <div class="sidebar-prev-next">
+      <a href="class2.html">← Class 02</a>
+      <a href="class4.html">Class 04 →</a>
+    </div>
+  </aside>
+
+  <main>
+    <div class="class-badge">CLASS_03 &nbsp;·&nbsp; FULL BUILD</div>
+    <h1>智慧餐飲<br><em>點餐系統</em></h1>
+    <p class="class-desc">這堂課要解決一個真實問題：餐廳點餐的資訊流動——從顧客點餐、AI 推薦搭配、廚房即時接單、到結帳付款，每個環節都要即時同步。核心技術是 Supabase Realtime，它讓你不需要自己架設 WebSocket，資料庫的每一次寫入都能即時推送到所有連線的客戶端。</p>
+
+    <div class="stack-row">
+      <span class="stack-pill">Supabase Realtime</span>
+      <span class="stack-pill">Web Speech API</span>
+      <span class="stack-pill">Stripe</span>
+      <span class="stack-pill">Claude API</span>
+      <span class="stack-pill">Next.js 15</span>
+      <span class="stack-pill">TypeScript</span>
+      <span class="stack-pill">PostgreSQL</span>
+    </div>
+
+    <div class="outcome-box">
+      <div class="outcome-label">LEARNING OUTCOME</div>
+      <div class="outcome-text">課程結束後，你擁有：(1) 一個完整的餐飲點餐系統，顧客端、廚房顯示板、管理後台三端同步，訂單狀態更新在 100ms 內反映到所有畫面；(2) 語音點餐功能，說出「一份牛排七分熟，一杯紅酒，不要麵包」，AI 解析並自動加入購物車；(3) Stripe Checkout 整合，可以用真實信用卡付款（test mode）。</div>
+    </div>
+
+    <!-- ARCHITECTURE -->
+    <div id="architecture" class="section">
+      <div class="section-label">系統架構</div>
+      <h2>三端同步架構</h2>
+      <p>這個系統有三個使用者角色，各有獨立的介面，但共用同一個 Supabase 資料庫。資料流向是單向的：顧客下單 → 廚房接單執行 → 管理端監控統計。Realtime 讓三端的狀態永遠保持一致。</p>
+
+      <div class="arch-row">
+        <div class="arch-card">
+          <div class="arch-role role-customer">CUSTOMER</div>
+          <div class="arch-desc">顧客端：瀏覽菜單、語音/文字點餐、AI 推薦搭配、加入購物車、Stripe 付款、即時追蹤訂單狀態</div>
+        </div>
+        <div class="arch-card">
+          <div class="arch-role role-kitchen">KITCHEN</div>
+          <div class="arch-desc">廚房顯示板（KDS）：即時顯示新訂單、標記每道菜的製作狀態（待製作→製作中→完成）、無需刷新頁面</div>
+        </div>
+        <div class="arch-card">
+          <div class="arch-role role-admin">ADMIN</div>
+          <div class="arch-desc">管理後台：即時訂單監控、庫存管理、菜單上下架、今日營收統計、熱門菜品分析</div>
+        </div>
+      </div>
+
+      <div class="concepts">
+        <div class="concept-card">
+          <div class="concept-title">Supabase Realtime</div>
+          <div class="concept-body">基於 PostgreSQL 的 LISTEN/NOTIFY 機制，透過 WebSocket 推送資料庫變更到前端。不需要自己維護 WebSocket server，Supabase 幫你做好所有基礎設施。</div>
+        </div>
+        <div class="concept-card">
+          <div class="concept-title">Web Speech API</div>
+          <div class="concept-body">瀏覽器原生語音辨識 API，不需要第三方服務。辨識結果是文字，再交給 Claude 解析成結構化的點餐資料（菜名、數量、備注）。</div>
+        </div>
+        <div class="concept-card">
+          <div class="concept-title">Stripe Checkout</div>
+          <div class="concept-body">最簡單的 Stripe 整合方式：後端建立 Checkout Session，前端 redirect 到 Stripe 托管的付款頁面。Stripe 處理所有 PCI DSS 合規問題，你不需要碰信用卡號碼。</div>
+        </div>
+        <div class="concept-card">
+          <div class="concept-title">Optimistic Updates</div>
+          <div class="concept-body">加入購物車、標記完成等操作，先更新 UI 讓使用者感覺即時，再在背景寫入資料庫。失敗時 rollback。這讓系統感覺比實際速度快 200-400ms。</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI MENU -->
+    <div id="menu-ai" class="section">
+      <div class="section-label">AI 菜單推薦</div>
+      <h2>根據情境推薦菜單搭配</h2>
+      <p>AI 推薦不是「隨機顯示熱門菜品」。它要根據用戶已點的菜、當前時段、庫存狀態、以及菜單上的口味描述，給出有邏輯的搭配建議。Claude 的語言理解能力在這裡是核心優勢。</p>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">TYPESCRIPT</span>
+          <span class="code-file">src/app/api/menu/recommend/route.ts</span>
+          <button class="code-copy" onclick="copyCode(this)">copy</button>
+        </div>
+        <pre><span class="k">import</span> { <span class="f">NextRequest</span>, <span class="f">NextResponse</span> } <span class="k">from</span> <span class="s">'next/server'</span>
+<span class="k">import</span> { z } <span class="k">from</span> <span class="s">'zod'</span>
+<span class="k">import</span> Anthropic <span class="k">from</span> <span class="s">'@anthropic-ai/sdk'</span>
+<span class="k">import</span> { <span class="f">createClient</span> } <span class="k">from</span> <span class="s">'@/lib/supabase/server'</span>
+
+<span class="k">const</span> <span class="v">Schema</span> = z.<span class="f">object</span>({
+  cart_items: z.<span class="f">array</span>(z.<span class="f">object</span>({
+    name: z.<span class="s">string</span>(),
+    category: z.<span class="s">string</span>(),
+  })),
+  table_size: z.<span class="f">number</span>().<span class="f">optional</span>(),
+})
+
+<span class="k">export async function</span> <span class="f">POST</span>(req: <span class="f">NextRequest</span>) {
+  <span class="k">const</span> parsed = <span class="v">Schema</span>.<span class="f">safeParse</span>(<span class="k">await</span> req.<span class="f">json</span>())
+  <span class="k">if</span> (!parsed.success) <span class="k">return</span> <span class="f">NextResponse</span>.<span class="f">json</span>({ error: <span class="s">'Invalid input'</span> }, { status: <span class="v">400</span> })
+
+  <span class="k">const</span> supabase = <span class="k">await</span> <span class="f">createClient</span>()
+
+  <span class="c">// 取得有庫存的菜單（stock > 0）</span>
+  <span class="k">const</span> { data: menuItems } = <span class="k">await</span> supabase
+    .<span class="f">from</span>(<span class="s">'menu_items'</span>)
+    .<span class="f">select</span>(<span class="s">'name, category, description, price, tags'</span>)
+    .<span class="f">eq</span>(<span class="s">'available'</span>, <span class="k">true</span>)
+    .<span class="f">gt</span>(<span class="s">'stock'</span>, <span class="v">0</span>)
+
+  <span class="k">const</span> anthropic = <span class="k">new</span> <span class="f">Anthropic</span>({ apiKey: process.env.<span class="v">ANTHROPIC_API_KEY</span>! })
+
+  <span class="k">const</span> cartDesc = parsed.data.cart_items.<span class="f">length</span> > <span class="v">0</span>
+    ? <span class="s">`顧客已點：</span>${parsed.data.cart_items.<span class="f">map</span>(i => i.name).<span class="f">join</span>(<span class="s">'、'</span>)}<span class="s">`</span>
+    : <span class="s">'顧客尚未點任何菜'</span>
+
+  <span class="k">const</span> res = <span class="k">await</span> anthropic.messages.<span class="f">create</span>({
+    model: <span class="s">'claude-sonnet-4-20250514'</span>,
+    max_tokens: <span class="v">512</span>,
+    system: <span class="s">`你是一個高級餐廳的服務生 AI。根據顧客已點的菜和完整菜單，推薦 2-3 道最適合搭配的菜品或飲料。
+回覆 JSON 格式：{"recommendations": [{"name": "菜名", "reason": "30字內的推薦理由"}]}`</span>,
+    messages: [{
+      role: <span class="s">'user'</span>,
+      content: <span class="s">`</span>${cartDesc}<span class="s">\n\n完整菜單：\n</span>${<span class="f">JSON</span>.<span class="f">stringify</span>(menuItems, <span class="k">null</span>, <span class="v">2</span>)}<span class="s">`</span>,
+    }],
+  })
+
+  <span class="k">const</span> text = res.content[<span class="v">0</span>].type === <span class="s">'text'</span> ? res.content[<span class="v">0</span>].text : <span class="s">'{}'</span>
+
+  <span class="k">try</span> {
+    <span class="k">const</span> result = <span class="f">JSON</span>.<span class="f">parse</span>(text)
+    <span class="k">return</span> <span class="f">NextResponse</span>.<span class="f">json</span>(result)
+  } <span class="k">catch</span> {
+    <span class="k">return</span> <span class="f">NextResponse</span>.<span class="f">json</span>({ recommendations: [] })
+  }
+}</pre>
+      </div>
+
+      <div class="tip-box"><p>在 system prompt 要求 Claude 只推薦菜單上存在的菜名（把完整菜單傳入），否則 Claude 會「創造」不存在的菜品。這是 AI 推薦系統最常見的問題之一。</p></div>
+    </div>
+
+    <!-- VOICE -->
+    <div id="voice" class="section">
+      <div class="section-label">語音點餐</div>
+      <h2>Web Speech API + Claude 意圖解析</h2>
+      <p>Web Speech API 做語音辨識，Claude 做意圖解析。語音辨識只能給你一段文字，Claude 把這段文字轉成結構化的點餐資料：菜名（對應到菜單）、數量、備注（少辣、不加蔥等）。</p>
+
+      <div class="warn-box"><p>Web Speech API 目前在 Chrome/Edge 支援最好，Safari 部分支援，Firefox 需要實驗性旗標。商業部署建議加 fallback：偵測不支援時顯示一般文字輸入。</p></div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">TYPESCRIPT</span>
+          <span class="code-file">src/hooks/useVoiceOrder.ts</span>
+          <button class="code-copy" onclick="copyCode(this)">copy</button>
+        </div>
+        <pre><span class="s">'use client'</span>
+<span class="k">import</span> { useState, useRef, useCallback } <span class="k">from</span> <span class="s">'react'</span>
+
+<span class="k">declare global</span> {
+  <span class="k">interface</span> <span class="f">Window</span> { <span class="f">SpeechRecognition</span>: <span class="s">unknown</span>; <span class="f">webkitSpeechRecognition</span>: <span class="s">unknown</span> }
+}
+
+<span class="k">export interface</span> <span class="f">ParsedOrder</span> {
+  items: { name: <span class="s">string</span>; qty: <span class="s">number</span>; notes?: <span class="s">string</span> }[]
+  raw_text: <span class="s">string</span>
+}
+
+<span class="k">export function</span> <span class="f">useVoiceOrder</span>(menuNames: <span class="s">string</span>[]) {
+  <span class="k">const</span> [listening, <span class="f">setListening</span>] = <span class="f">useState</span>(<span class="k">false</span>)
+  <span class="k">const</span> [transcript, <span class="f">setTranscript</span>] = <span class="f">useState</span>(<span class="s">''</span>)
+  <span class="k">const</span> [parsing, <span class="f">setParsing</span>] = <span class="f">useState</span>(<span class="k">false</span>)
+  <span class="k">const</span> recRef = useRef&lt;<span class="s">unknown</span>&gt;(<span class="k">null</span>)
+
+  <span class="k">const</span> <span class="f">startListening</span> = <span class="f">useCallback</span>(() => {
+    <span class="k">const</span> <span class="f">SpeechRecognition</span> =
+      window.<span class="f">SpeechRecognition</span> || window.<span class="f">webkitSpeechRecognition</span>
+    <span class="k">if</span> (!<span class="f">SpeechRecognition</span>) {
+      alert(<span class="s">'你的瀏覽器不支援語音辨識，請使用 Chrome'</span>)
+      <span class="k">return</span>
+    }
+
+    <span class="k">const</span> rec = <span class="k">new</span> (<span class="f">SpeechRecognition</span> <span class="k">as any</span>)()
+    rec.lang = <span class="s">'zh-TW'</span>
+    rec.continuous = <span class="k">false</span>
+    rec.interimResults = <span class="k">false</span>
+    recRef.current = rec
+
+    rec.<span class="f">onstart</span> = () => <span class="f">setListening</span>(<span class="k">true</span>)
+    rec.<span class="f">onend</span> = () => <span class="f">setListening</span>(<span class="k">false</span>)
+    rec.<span class="f">onresult</span> = (e: <span class="s">any</span>) => {
+      <span class="k">const</span> text = e.results[<span class="v">0</span>][<span class="v">0</span>].transcript
+      <span class="f">setTranscript</span>(text)
+    }
+    rec.<span class="f">start</span>()
+  }, [])
+
+  <span class="k">const</span> <span class="f">stopListening</span> = <span class="f">useCallback</span>(() => {
+    (<span class="k">recRef</span>.current <span class="k">as any</span>)?.<span class="f">stop</span>()
+  }, [])
+
+  <span class="c">// 用 Claude 解析語音文字成結構化點餐</span>
+  <span class="k">const</span> <span class="f">parseOrder</span> = <span class="f">useCallback</span>(<span class="k">async</span> (text: <span class="s">string</span>): <span class="k">Promise</span>&lt;<span class="f">ParsedOrder</span>&gt; => {
+    <span class="f">setParsing</span>(<span class="k">true</span>)
+    <span class="k">try</span> {
+      <span class="k">const</span> res = <span class="k">await</span> <span class="f">fetch</span>(<span class="s">'/api/menu/parse-voice'</span>, {
+        method: <span class="s">'POST'</span>,
+        headers: { <span class="s">'Content-Type'</span>: <span class="s">'application/json'</span> },
+        body: <span class="f">JSON</span>.<span class="f">stringify</span>({ text, menu_names: menuNames }),
+      })
+      <span class="k">return</span> res.<span class="f">json</span>()
+    } <span class="k">finally</span> {
+      <span class="f">setParsing</span>(<span class="k">false</span>)
+    }
+  }, [menuNames])
+
+  <span class="k">return</span> { listening, transcript, parsing, <span class="f">startListening</span>, <span class="f">stopListening</span>, <span class="f">parseOrder</span> }
+}</pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">TYPESCRIPT</span>
+          <span class="code-file">src/app/api/menu/parse-voice/route.ts</span>
+          <button class="code-copy" onclick="copyCode(this)">copy</button>
+        </div>
+        <pre><span class="k">import</span> { <span class="f">NextRequest</span>, <span class="f">NextResponse</span> } <span class="k">from</span> <span class="s">'next/server'</span>
+<span class="k">import</span> Anthropic <span class="k">from</span> <span class="s">'@anthropic-ai/sdk'</span>
+
+<span class="k">const</span> anthropic = <span class="k">new</span> <span class="f">Anthropic</span>({ apiKey: process.env.<span class="v">ANTHROPIC_API_KEY</span>! })
+
+<span class="k">export async function</span> <span class="f">POST</span>(req: <span class="f">NextRequest</span>) {
+  <span class="k">const</span> { text, menu_names } = <span class="k">await</span> req.<span class="f">json</span>()
+
+  <span class="k">const</span> res = <span class="k">await</span> anthropic.messages.<span class="f">create</span>({
+    model: <span class="s">'claude-sonnet-4-20250514'</span>,
+    max_tokens: <span class="v">512</span>,
+    system: <span class="s">`你是餐廳點餐 AI。從語音辨識的文字中提取點餐資訊。
+只能使用菜單上存在的菜名：</span>${menu_names.<span class="f">join</span>(<span class="s">'、'</span>)}<span class="s">
+
+回覆嚴格遵守 JSON 格式（不加任何解釋）：
+{
+  "items": [
+    { "name": "菜單上的菜名", "qty": 1, "notes": "備注（無備注則省略此欄）" }
+  ],
+  "raw_text": "原始語音文字"
+}
+
+如果語音內容和菜單無關，items 回傳空陣列。`</span>,
+    messages: [{ role: <span class="s">'user'</span>, content: <span class="s">`語音文字：「</span>${text}<span class="s">」`</span> }],
+  })
+
+  <span class="k">const</span> raw = res.content[<span class="v">0</span>].type === <span class="s">'text'</span> ? res.content[<span class="v">0</span>].text : <span class="s">'{}'</span>
+  <span class="k">try</span> {
+    <span class="k">return</span> <span class="f">NextResponse</span>.<span class="f">json</span>(<span class="f">JSON</span>.<span class="f">parse</span>(raw))
+  } <span class="k">catch</span> {
+    <span class="k">return</span> <span class="f">NextResponse</span>.<span class="f">json</span>({ items: [], raw_text: text })
+  }
+}</pre>
+      </div>
+    </div>
+
+    <!-- REALTIME -->
+    <div id="realtime" class="section">
+      <div class="section-label">Supabase Realtime</div>
+      <h2>即時訂單狀態同步</h2>
+      <p>Supabase Realtime 有三種訂閱模式：Broadcast（手動推送訊息）、Presence（追蹤線上用戶）、Postgres Changes（監聽資料庫變更）。我們主要用 Postgres Changes：只要 orders 或 order_items 表格有任何 INSERT/UPDATE，所有訂閱的客戶端都會即時收到通知。</p>
+
+      <div class="realtime-flow">
+        <div class="realtime-flow-header">REALTIME ORDER FLOW</div>
+        <div class="rt-step">
+          <div class="rt-idx">1</div>
+          <div class="rt-who role-customer">顧客端</div>
+          <div class="rt-content">顧客確認購物車 → 呼叫 <code>/api/orders</code> → 寫入 orders + order_items 表格</div>
+        </div>
+        <div class="rt-step">
+          <div class="rt-idx">2</div>
+          <div class="rt-who" style="color:var(--teal)">Supabase</div>
+          <div class="rt-content">PostgreSQL WAL（Write-Ahead Log）捕捉到 INSERT 事件，透過 Realtime server 推送到所有訂閱者</div>
+        </div>
+        <div class="rt-step">
+          <div class="rt-idx">3</div>
+          <div class="rt-who role-kitchen">廚房端</div>
+          <div class="rt-content">即時收到新訂單，自動出現在 KDS 畫面最上方，附帶聲音提示，無需廚師手動刷新</div>
+        </div>
+        <div class="rt-step">
+          <div class="rt-idx">4</div>
+          <div class="rt-who role-kitchen">廚房端</div>
+          <div class="rt-content">廚師標記每道菜「製作中」→「完成」，UPDATE order_items.status</div>
+        </div>
+        <div class="rt-step">
+          <div class="rt-idx">5</div>
+          <div class="rt-who role-customer">顧客端</div>
+          <div class="rt-content">即時看到訂單進度更新（等待中 → 製作中 → 送餐中），不需要 polling</div>
+        </div>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">TYPESCRIPT</span>
+          <span class="code-file">src/hooks/useOrderRealtime.ts</span>
+          <button class="code-copy" onclick="copyCode(this)">copy</button>
+        </div>
+        <pre><span class="s">'use client'</span>
+<span class="k">import</span> { useEffect, useState } <span class="k">from</span> <span class="s">'react'</span>
+<span class="k">import</span> { <span class="f">createBrowserClient</span> } <span class="k">from</span> <span class="s">'@supabase/ssr'</span>
+<span class="k">import type</span> { <span class="f">Order</span> } <span class="k">from</span> <span class="s">'@/types'</span>
+
+<span class="k">export function</span> <span class="f">useOrderRealtime</span>(orderId: <span class="s">string</span>) {
+  <span class="k">const</span> [order, <span class="f">setOrder</span>] = <span class="f">useState</span>&lt;<span class="f">Order</span> | <span class="k">null</span>&gt;(<span class="k">null</span>)
+
+  useEffect(() => {
+    <span class="k">const</span> supabase = <span class="f">createBrowserClient</span>(
+      process.env.<span class="v">NEXT_PUBLIC_SUPABASE_URL</span>!,
+      process.env.<span class="v">NEXT_PUBLIC_SUPABASE_ANON_KEY</span>!
+    )
+
+    <span class="c">// 先取得目前訂單狀態</span>
+    supabase
+      .<span class="f">from</span>(<span class="s">'orders'</span>)
+      .<span class="f">select</span>(<span class="s">'*, order_items(*, menu_items(name, image_url))'</span>)
+      .<span class="f">eq</span>(<span class="s">'id'</span>, orderId)
+      .<span class="f">single</span>()
+      .<span class="f">then</span>(({ data }) => <span class="k">data</span> && <span class="f">setOrder</span>(data <span class="k">as</span> <span class="f">Order</span>))
+
+    <span class="c">// 訂閱 order_items 變更（廚房更新製作狀態時觸發）</span>
+    <span class="k">const</span> channel = supabase
+      .<span class="f">channel</span>(<span class="s">`order-</span>${orderId}<span class="s">`</span>)
+      .<span class="f">on</span>(
+        <span class="s">'postgres_changes'</span>,
+        {
+          event: <span class="s">'UPDATE'</span>,
+          schema: <span class="s">'public'</span>,
+          table: <span class="s">'order_items'</span>,
+          filter: <span class="s">`order_id=eq.</span>${orderId}<span class="s">`</span>,
+        },
+        <span class="k">async</span> () => {
+          <span class="c">// 重新取得完整訂單（包含所有 items 的最新狀態）</span>
+          <span class="k">const</span> { data } = <span class="k">await</span> supabase
+            .<span class="f">from</span>(<span class="s">'orders'</span>)
+            .<span class="f">select</span>(<span class="s">'*, order_items(*, menu_items(name, image_url))'</span>)
+            .<span class="f">eq</span>(<span class="s">'id'</span>, orderId)
+            .<span class="f">single</span>()
+          <span class="k">if</span> (data) <span class="f">setOrder</span>(data <span class="k">as</span> <span class="f">Order</span>)
+        }
+      )
+      .<span class="f">subscribe</span>()
+
+    <span class="k">return</span> () => { supabase.<span class="f">removeChannel</span>(channel) }
+  }, [orderId])
+
+  <span class="k">return</span> order
+}</pre>
+      </div>
+
+      <h3>廚房端：監聽所有新訂單</h3>
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">TYPESCRIPT</span>
+          <span class="code-file">src/hooks/useKitchenOrders.ts</span>
+          <button class="code-copy" onclick="copyCode(this)">copy</button>
+        </div>
+        <pre><span class="s">'use client'</span>
+<span class="k">import</span> { useEffect, useState, useCallback } <span class="k">from</span> <span class="s">'react'</span>
+<span class="k">import</span> { <span class="f">createBrowserClient</span> } <span class="k">from</span> <span class="s">'@supabase/ssr'</span>
+<span class="k">import type</span> { <span class="f">Order</span> } <span class="k">from</span> <span class="s">'@/types'</span>
+
+<span class="k">export function</span> <span class="f">useKitchenOrders</span>() {
+  <span class="k">const</span> [orders, <span class="f">setOrders</span>] = <span class="f">useState</span>&lt;<span class="f">Order</span>[]&gt;([])
+  <span class="k">const</span> supabase = <span class="f">createBrowserClient</span>(
+    process.env.<span class="v">NEXT_PUBLIC_SUPABASE_URL</span>!,
+    process.env.<span class="v">NEXT_PUBLIC_SUPABASE_ANON_KEY</span>!
+  )
+
+  useEffect(() => {
+    <span class="c">// 取得今日所有未完成訂單</span>
+    supabase
+      .<span class="f">from</span>(<span class="s">'orders'</span>)
+      .<span class="f">select</span>(<span class="s">'*, order_items(*, menu_items(name))'</span>)
+      .<span class="f">in</span>(<span class="s">'status'</span>, [<span class="s">'paid'</span>, <span class="s">'preparing'</span>])
+      .<span class="f">gte</span>(<span class="s">'created_at'</span>, <span class="k">new</span> Date().<span class="f">toISOString</span>().<span class="f">split</span>(<span class="s">'T'</span>)[<span class="v">0</span>])
+      .<span class="f">order</span>(<span class="s">'created_at'</span>, { ascending: <span class="k">true</span> })
+      .<span class="f">then</span>(({ data }) => <span class="k">data</span> && <span class="f">setOrders</span>(data <span class="k">as</span> <span class="f">Order</span>[]));
+
+    <span class="c">// 監聽新訂單進來（INSERT）</span>
+    <span class="k">const</span> channel = supabase
+      .<span class="f">channel</span>(<span class="s">'kitchen-orders'</span>)
+      .<span class="f">on</span>(
+        <span class="s">'postgres_changes'</span>,
+        { event: <span class="s">'INSERT'</span>, schema: <span class="s">'public'</span>, table: <span class="s">'orders'</span> },
+        <span class="k">async</span> (payload) => {
+          <span class="c">// 取得新訂單的完整資訊（含 order_items）</span>
+          <span class="k">const</span> { data } = <span class="k">await</span> supabase
+            .<span class="f">from</span>(<span class="s">'orders'</span>)
+            .<span class="f">select</span>(<span class="s">'*, order_items(*, menu_items(name))'</span>)
+            .<span class="f">eq</span>(<span class="s">'id'</span>, payload.new.id)
+            .<span class="f">single</span>()
+          <span class="k">if</span> (data) {
+            <span class="f">setOrders</span>(prev => [data <span class="k">as</span> <span class="f">Order</span>, ...prev])
+            <span class="c">// 播放提示音</span>
+            <span class="k">new</span> <span class="f">Audio</span>(<span class="s">'/sounds/new-order.mp3'</span>).<span class="f">play</span>().<span class="f">catch</span>(() => {})
+          }
+        }
+      )
+      .<span class="f">on</span>(
+        <span class="s">'postgres_changes'</span>,
+        { event: <span class="s">'UPDATE'</span>, schema: <span class="s">'public'</span>, table: <span class="s">'orders'</span> },
+        (payload) => {
+          <span class="f">setOrders</span>(prev =>
+            payload.new.status === <span class="s">'completed'</span>
+              ? prev.<span class="f">filter</span>(o => o.id !== payload.new.id)   <span class="c">// 完成的訂單移出廚房看板</span>
+              : prev.<span class="f">map</span>(o => o.id === payload.new.id ? { ...o, ...payload.new } : o)
+          )
+        }
+      )
+      .<span class="f">subscribe</span>()
+
+    <span class="k">return</span> () => { supabase.<span class="f">removeChannel</span>(channel) }
+  }, [])
+
+  <span class="k">const</span> <span class="f">markItemDone</span> = <span class="f">useCallback</span>(<span class="k">async</span> (itemId: <span class="s">string</span>) => {
+    <span class="k">await</span> supabase
+      .<span class="f">from</span>(<span class="s">'order_items'</span>)
+      .<span class="f">update</span>({ status: <span class="s">'done'</span>, done_at: <span class="k">new</span> Date().<span class="f">toISOString</span>() })
+      .<span class="f">eq</span>(<span class="s">'id'</span>, itemId)
+  }, [supabase])
+
+  <span class="k">return</span> { orders, <span class="f">markItemDone</span> }
+}</pre>
+      </div>
+    </div>
+
+    <!-- KITCHEN DISPLAY -->
+    <div id="kitchen" class="section">
+      <div class="section-label">廚房顯示板</div>
+      <h2>KDS — Kitchen Display System</h2>
+      <p>廚房顯示板（KDS）是整個系統最簡單但最關鍵的一環。它必須：全螢幕顯示、字體大、操作簡單（廚師帶手套也能按）、無需登入（廚房設備固定）。</p>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">TYPESCRIPT</span>
+          <span class="code-file">src/app/(kitchen)/kds/page.tsx</span>
+          <button class="code-copy" onclick="copyCode(this)">copy</button>
+        </div>
+        <pre><span class="s">'use client'</span>
+<span class="k">import</span> { <span class="f">useKitchenOrders</span> } <span class="k">from</span> <span class="s">'@/hooks/useKitchenOrders'</span>
+
+<span class="k">export default function</span> <span class="f">KDSPage</span>() {
+  <span class="k">const</span> { orders, <span class="f">markItemDone</span> } = <span class="f">useKitchenOrders</span>()
+
+  <span class="k">return</span> (
+    &lt;<span class="t">div</span> style={{ background: <span class="s">'#0a0a0a'</span>, minHeight: <span class="s">'100vh'</span>, padding: <span class="s">'16px'</span>, display: <span class="s">'grid'</span>, gridTemplateColumns: <span class="s">'repeat(auto-fill, minmax(280px, 1fr))'</span>, gap: <span class="s">'12px'</span>, alignContent: <span class="s">'start'</span> }}&gt;
+
+      {orders.<span class="f">length</span> === <span class="v">0</span> && (
+        &lt;<span class="t">div</span> style={{ gridColumn: <span class="s">'1/-1'</span>, textAlign: <span class="s">'center'</span>, color: <span class="s">'#333'</span>, fontSize: <span class="s">'20px'</span>, marginTop: <span class="s">'20vh'</span>, fontFamily: <span class="s">'monospace'</span> }}&gt;
+          等待新訂單...
+        &lt;/<span class="t">div</span>&gt;
+      )}
+
+      {orders.<span class="f">map</span>(order => (
+        &lt;<span class="t">div</span> key={order.id} style={{ background: <span class="s">'#111'</span>, border: <span class="s">`2px solid ${order.status === 'preparing' ? '#c8f055' : '#333'}`</span>, borderRadius: <span class="s">'8px'</span>, padding: <span class="s">'16px'</span> }}&gt;
+          &lt;<span class="t">div</span> style={{ fontFamily: <span class="s">'monospace'</span>, fontSize: <span class="s">'11px'</span>, color: <span class="s">'#555'</span>, marginBottom: <span class="s">'4px'</span> }}&gt;
+            桌號 {order.table_number} &nbsp;·&nbsp; #{order.id.<span class="f">slice</span>(-<span class="v">4</span>).<span class="f">toUpperCase</span>()}
+          &lt;/<span class="t">div</span>&gt;
+          &lt;<span class="t">div</span> style={{ fontSize: <span class="s">'11px'</span>, color: <span class="s">'#555'</span>, marginBottom: <span class="s">'12px'</span> }}&gt;
+            {<span class="k">new</span> Date(order.created_at).<span class="f">toLocaleTimeString</span>(<span class="s">'zh-TW'</span>, { hour: <span class="s">'2-digit'</span>, minute: <span class="s">'2-digit'</span>, second: <span class="s">'2-digit'</span> })}
+          &lt;/<span class="t">div</span>&gt;
+
+          {order.order_items.<span class="f">map</span>(item => (
+            &lt;<span class="t">button</span>
+              key={item.id}
+              onClick={() => item.status !== <span class="s">'done'</span> && <span class="f">markItemDone</span>(item.id)}
+              style={{
+                display: <span class="s">'flex'</span>, justifyContent: <span class="s">'space-between'</span>, alignItems: <span class="s">'center'</span>,
+                width: <span class="s">'100%'</span>, background: item.status === <span class="s">'done'</span> ? <span class="s">'#1a1a1a'</span> : <span class="s">'#1e2a1e'</span>,
+                border: <span class="s">`1px solid ${item.status === 'done' ? '#222' : '#2d4a2d'}`</span>,
+                borderRadius: <span class="s">'4px'</span>, padding: <span class="s">'10px 12px'</span>, marginBottom: <span class="s">'6px'</span>,
+                color: item.status === <span class="s">'done'</span> ? <span class="s">'#333'</span> : <span class="s">'#e8e8f0'</span>,
+                fontSize: <span class="s">'14px'</span>, cursor: item.status === <span class="s">'done'</span> ? <span class="s">'default'</span> : <span class="s">'pointer'</span>,
+                textDecoration: item.status === <span class="s">'done'</span> ? <span class="s">'line-through'</span> : <span class="s">'none'</span>,
+              }}
+            &gt;
+              &lt;<span class="t">span</span>&gt;×{item.quantity} &nbsp;{item.menu_items?.name}&lt;/<span class="t">span</span>&gt;
+              {item.notes && &lt;<span class="t">span</span> style={{ fontSize: <span class="s">'11px'</span>, color: <span class="s">'#ff7a5c'</span> }}&gt;{item.notes}&lt;/<span class="t">span</span>&gt;}
+              &lt;<span class="t">span</span> style={{ fontSize: <span class="s">'18px'</span> }}&gt;{item.status === <span class="s">'done'</span> ? <span class="s">'✓'</span> : <span class="s">'○'</span>}&lt;/<span class="t">span</span>&gt;
+            &lt;/<span class="t">button</span>&gt;
+          ))}
+        &lt;/<span class="t">div</span>&gt;
+      ))}
+    &lt;/<span class="t">div</span>&gt;
+  )
+}</pre>
+      </div>
+
+      <div class="tip-box"><p>KDS 頁面設定為 <code>(kitchen)</code> route group，不套用主應用的 layout（沒有 nav、sidebar）。在 <code>src/app/(kitchen)/layout.tsx</code> 建立一個最簡 layout，全螢幕黑底，讓廚房設備全螢幕瀏覽器開啟後長時間穩定顯示。</p></div>
+    </div>
+
+    <!-- STRIPE -->
+    <div id="stripe" class="section">
+      <div class="section-label">Stripe 結帳</div>
+      <h2>Stripe Checkout 整合</h2>
+      <p>Stripe Checkout 是最快的付款整合方式：你在後端建立 Checkout Session，前端 redirect 到 Stripe 的托管付款頁面，付款完成後 Stripe redirect 回你的網站。整個流程不需要你自己處理信用卡資料。</p>
+
+      <div class="info-box"><p>Stripe test mode：使用 <code>4242 4242 4242 4242</code>（任意有效期 + 任意 CVV）可以模擬成功付款。Dashboard 可以看到所有 test 交易記錄，方便開發期間測試。</p></div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">TYPESCRIPT</span>
+          <span class="code-file">src/app/api/checkout/route.ts</span>
+          <button class="code-copy" onclick="copyCode(this)">copy</button>
+        </div>
+        <pre><span class="k">import</span> { <span class="f">NextRequest</span>, <span class="f">NextResponse</span> } <span class="k">from</span> <span class="s">'next/server'</span>
+<span class="k">import</span> Stripe <span class="k">from</span> <span class="s">'stripe'</span>
+<span class="k">import</span> { z } <span class="k">from</span> <span class="s">'zod'</span>
+<span class="k">import</span> { <span class="f">createClient</span> } <span class="k">from</span> <span class="s">'@/lib/supabase/server'</span>
+
+<span class="k">const</span> stripe = <span class="k">new</span> <span class="f">Stripe</span>(process.env.<span class="v">STRIPE_SECRET_KEY</span>!)
+
+<span class="k">const</span> <span class="v">Schema</span> = z.<span class="f">object</span>({
+  order_id: z.<span class="f">string</span>().<span class="f">uuid</span>(),
+  table_number: z.<span class="f">number</span>(),
+})
+
+<span class="k">export async function</span> <span class="f">POST</span>(req: <span class="f">NextRequest</span>) {
+  <span class="k">const</span> parsed = <span class="v">Schema</span>.<span class="f">safeParse</span>(<span class="k">await</span> req.<span class="f">json</span>())
+  <span class="k">if</span> (!parsed.success) <span class="k">return</span> <span class="f">NextResponse</span>.<span class="f">json</span>({ error: <span class="s">'Invalid input'</span> }, { status: <span class="v">400</span> })
+
+  <span class="k">const</span> supabase = <span class="k">await</span> <span class="f">createClient</span>()
+
+  <span class="c">// 取得訂單明細（用來建立 Stripe line_items）</span>
+  <span class="k">const</span> { data: order } = <span class="k">await</span> supabase
+    .<span class="f">from</span>(<span class="s">'orders'</span>)
+    .<span class="f">select</span>(<span class="s">'*, order_items(quantity, unit_price, notes, menu_items(name))'</span>)
+    .<span class="f">eq</span>(<span class="s">'id'</span>, parsed.data.order_id)
+    .<span class="f">single</span>()
+
+  <span class="k">if</span> (!order) <span class="k">return</span> <span class="f">NextResponse</span>.<span class="f">json</span>({ error: <span class="s">'Order not found'</span> }, { status: <span class="v">404</span> })
+
+  <span class="k">const</span> lineItems = order.order_items.<span class="f">map</span>((item: <span class="s">any</span>) => ({
+    price_data: {
+      currency: <span class="s">'twd'</span>,
+      unit_amount: <span class="f">Math</span>.<span class="f">round</span>(item.unit_price),  <span class="c">// TWD 以最小單位（元）計算</span>
+      product_data: {
+        name: item.menu_items.name,
+        ...(item.notes ? { description: item.notes } : {}),
+      },
+    },
+    quantity: item.quantity,
+  }))
+
+  <span class="k">const</span> baseUrl = process.env.<span class="v">NEXT_PUBLIC_BASE_URL</span>
+  <span class="k">const</span> session = <span class="k">await</span> stripe.checkout.sessions.<span class="f">create</span>({
+    mode: <span class="s">'payment'</span>,
+    line_items: lineItems,
+    metadata: {
+      order_id: parsed.data.order_id,
+      table_number: <span class="s">String</span>(parsed.data.table_number),
+    },
+    success_url: <span class="s">`</span>${baseUrl}<span class="s">/order/</span>${parsed.data.order_id}<span class="s">?paid=1`</span>,
+    cancel_url: <span class="s">`</span>${baseUrl}<span class="s">/order/</span>${parsed.data.order_id}<span class="s">`</span>,
+  })
+
+  <span class="k">return</span> <span class="f">NextResponse</span>.<span class="f">json</span>({ url: session.url })
+}</pre>
+      </div>
+
+      <h3>Stripe Webhook — 付款成功後更新訂單狀態</h3>
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">TYPESCRIPT</span>
+          <span class="code-file">src/app/api/webhooks/stripe/route.ts</span>
+          <button class="code-copy" onclick="copyCode(this)">copy</button>
+        </div>
+        <pre><span class="k">import</span> { <span class="f">NextRequest</span>, <span class="f">NextResponse</span> } <span class="k">from</span> <span class="s">'next/server'</span>
+<span class="k">import</span> Stripe <span class="k">from</span> <span class="s">'stripe'</span>
+<span class="k">import</span> { <span class="f">createClient</span> } <span class="k">from</span> <span class="s">'@/lib/supabase/server'</span>
+
+<span class="k">const</span> stripe = <span class="k">new</span> <span class="f">Stripe</span>(process.env.<span class="v">STRIPE_SECRET_KEY</span>!)
+
+<span class="k">export async function</span> <span class="f">POST</span>(req: <span class="f">NextRequest</span>) {
+  <span class="k">const</span> body = <span class="k">await</span> req.<span class="f">text</span>()
+  <span class="k">const</span> sig = req.headers.<span class="f">get</span>(<span class="s">'stripe-signature'</span>)!
+
+  <span class="k">let</span> event: Stripe.<span class="f">Event</span>
+  <span class="k">try</span> {
+    event = stripe.webhooks.<span class="f">constructEvent</span>(body, sig, process.env.<span class="v">STRIPE_WEBHOOK_SECRET</span>!)
+  } <span class="k">catch</span> {
+    <span class="k">return</span> <span class="f">NextResponse</span>.<span class="f">json</span>({ error: <span class="s">'Invalid signature'</span> }, { status: <span class="v">400</span> })
+  }
+
+  <span class="k">if</span> (event.type === <span class="s">'checkout.session.completed'</span>) {
+    <span class="k">const</span> session = event.data.object <span class="k">as</span> Stripe.<span class="f">Checkout</span>.<span class="f">Session</span>
+    <span class="k">const</span> orderId = session.metadata?.order_id
+    <span class="k">if</span> (!orderId) <span class="k">return</span> <span class="f">NextResponse</span>.<span class="f">json</span>({ ok: <span class="k">true</span> })
+
+    <span class="c">// 更新訂單狀態為 paid → 廚房 Realtime 即時收到通知</span>
+    <span class="k">const</span> supabase = <span class="k">await</span> <span class="f">createClient</span>()
+    <span class="k">await</span> supabase
+      .<span class="f">from</span>(<span class="s">'orders'</span>)
+      .<span class="f">update</span>({
+        status: <span class="s">'paid'</span>,
+        paid_at: <span class="k">new</span> Date().<span class="f">toISOString</span>(),
+        stripe_session_id: session.id,
+      })
+      .<span class="f">eq</span>(<span class="s">'id'</span>, orderId)
+  }
+
+  <span class="k">return</span> <span class="f">NextResponse</span>.<span class="f">json</span>({ ok: <span class="k">true</span> })
+}</pre>
+      </div>
+
+      <div class="warn-box"><p>本地開發測試 Webhook：用 Stripe CLI 指令 <code>stripe listen --forward-to localhost:3000/api/webhooks/stripe</code>，它會把 Stripe 的 webhook 事件轉發到本地端。取得本地 webhook secret 設為 <code>STRIPE_WEBHOOK_SECRET</code>。</p></div>
+    </div>
+
+    <!-- DATABASE -->
+    <div id="db" class="section">
+      <div class="section-label">資料庫設計</div>
+      <h2>餐飲系統資料庫 Schema</h2>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">SQL</span>
+          <span class="code-file">supabase/migrations/003_restaurant.sql</span>
+          <button class="code-copy" onclick="copyCode(this)">copy</button>
+        </div>
+        <pre><span class="c">-- ===== MENU_ITEMS =====</span>
+<span class="k">create table</span> menu_items (
+  id          uuid <span class="k">default</span> <span class="f">gen_random_uuid</span>() <span class="k">primary key</span>,
+  name        text <span class="k">not null</span>,
+  description text,
+  price       numeric(<span class="v">10</span>, <span class="v">0</span>) <span class="k">not null</span>,             <span class="c">-- 台幣整數</span>
+  category    text <span class="k">not null</span>,                        <span class="c">-- 前菜、主菜、甜點、飲料</span>
+  image_url   text,
+  tags        text[] <span class="k">default</span> <span class="s">'{}'</span>,                  <span class="c">-- 素食、海鮮、辣、招牌...</span>
+  available   boolean <span class="k">default true not null</span>,
+  stock       integer <span class="k">default</span> <span class="v">99</span>,                   <span class="c">-- -1 = 無限量</span>
+  created_at  timestamptz <span class="k">default</span> <span class="f">now</span>()
+);
+
+<span class="c">-- ===== ORDERS =====</span>
+<span class="k">create table</span> orders (
+  id               uuid <span class="k">default</span> <span class="f">gen_random_uuid</span>() <span class="k">primary key</span>,
+  user_id          uuid <span class="k">references</span> profiles(id) <span class="k">on delete set null</span>,  <span class="c">-- 允許匿名點餐</span>
+  table_number     integer,
+  status           text <span class="k">not null default</span> <span class="s">'pending'</span>  <span class="c">-- pending/paid/preparing/completed/cancelled</span>
+                   <span class="k">check</span>(status <span class="k">in</span>(<span class="s">'pending'</span>,<span class="s">'paid'</span>,<span class="s">'preparing'</span>,<span class="s">'completed'</span>,<span class="s">'cancelled'</span>)),
+  total_amount     numeric(<span class="v">10</span>, <span class="v">0</span>) <span class="k">not null</span>,
+  stripe_session_id text,
+  notes            text,
+  paid_at          timestamptz,
+  created_at       timestamptz <span class="k">default</span> <span class="f">now</span>() <span class="k">not null</span>
+);
+
+<span class="c">-- ===== ORDER_ITEMS =====</span>
+<span class="k">create table</span> order_items (
+  id             uuid <span class="k">default</span> <span class="f">gen_random_uuid</span>() <span class="k">primary key</span>,
+  order_id       uuid <span class="k">references</span> orders(id) <span class="k">on delete cascade not null</span>,
+  menu_item_id   uuid <span class="k">references</span> menu_items(id) <span class="k">not null</span>,
+  quantity       integer <span class="k">not null check</span>(quantity > <span class="v">0</span>),
+  unit_price     numeric(<span class="v">10</span>, <span class="v">0</span>) <span class="k">not null</span>,             <span class="c">-- 快照當時價格，避免後來改價影響舊訂單</span>
+  notes          text,                                 <span class="c">-- 備注：少辣、不加蔥...</span>
+  status         text <span class="k">not null default</span> <span class="s">'pending'</span>
+                 <span class="k">check</span>(status <span class="k">in</span>(<span class="s">'pending'</span>, <span class="s">'preparing'</span>, <span class="s">'done'</span>)),
+  done_at        timestamptz,
+  created_at     timestamptz <span class="k">default</span> <span class="f">now</span>() <span class="k">not null</span>
+);
+
+<span class="k">create index</span> idx_orders_status     <span class="k">on</span> orders(status);
+<span class="k">create index</span> idx_orders_created_at <span class="k">on</span> orders(created_at);
+<span class="k">create index</span> idx_order_items_order <span class="k">on</span> order_items(order_id);
+
+<span class="c">-- ===== REALTIME 設定 =====</span>
+<span class="c">-- 在 Supabase Dashboard > Database > Replication 開啟這些 table 的 Realtime</span>
+<span class="c">-- 或用 SQL：</span>
+<span class="k">alter publication</span> supabase_realtime <span class="k">add table</span> orders;
+<span class="k">alter publication</span> supabase_realtime <span class="k">add table</span> order_items;
+
+<span class="c">-- ===== RLS =====</span>
+<span class="k">alter table</span> menu_items  <span class="k">enable row level security</span>;
+<span class="k">alter table</span> orders      <span class="k">enable row level security</span>;
+<span class="k">alter table</span> order_items <span class="k">enable row level security</span>;
+
+<span class="c">-- 菜單：所有人可讀，只有 admin 可寫</span>
+<span class="k">create policy</span> <span class="s">"menu: public read"</span> <span class="k">on</span> menu_items <span class="k">for select using</span> (<span class="k">true</span>);
+<span class="k">create policy</span> <span class="s">"menu: admin write"</span> <span class="k">on</span> menu_items <span class="k">for all using</span>
+  (auth.<span class="f">uid</span>() <span class="k">in</span> (<span class="k">select</span> id <span class="k">from</span> profiles <span class="k">where</span> role = <span class="s">'admin'</span>));
+
+<span class="c">-- 訂單：自己的訂單可讀，廚房 service role 可讀所有並更新</span>
+<span class="k">create policy</span> <span class="s">"orders: own read"</span> <span class="k">on</span> orders <span class="k">for select using</span>
+  (user_id = auth.<span class="f">uid</span>() <span class="k">or</span> auth.<span class="f">uid</span>() <span class="k">is null</span>);
+<span class="k">create policy</span> <span class="s">"orders: insert own"</span> <span class="k">on</span> orders <span class="k">for insert with check</span> (<span class="k">true</span>);  <span class="c">-- 允許匿名建立</span>
+
+<span class="c">-- 庫存扣減 trigger</span>
+<span class="k">create or replace function</span> <span class="f">deduct_stock</span>() <span class="k">returns trigger as</span> <span class="s">$$</span>
+<span class="k">begin</span>
+  <span class="k">update</span> menu_items
+  <span class="k">set</span> stock = stock - <span class="v">NEW</span>.quantity
+  <span class="k">where</span> id = <span class="v">NEW</span>.menu_item_id <span class="k">and</span> stock > <span class="v">0</span>;
+  <span class="k">return</span> <span class="v">NEW</span>;
+<span class="k">end</span>; <span class="s">$$</span> <span class="k">language</span> plpgsql;
+
+<span class="k">create trigger</span> on_order_item_insert
+  <span class="k">after insert on</span> order_items
+  <span class="k">for each row execute procedure</span> <span class="f">deduct_stock</span>();</pre>
+      </div>
+    </div>
+
+    <!-- DELIVERABLE -->
+    <div id="deliverable" class="section">
+      <div class="deliverable">
+        <div class="deliverable-label">CLASS 03 DELIVERABLE</div>
+        <div class="deliverable-title">完整餐飲點餐系統，三端即時同步</div>
+        <div class="deliverable-desc">完成本堂課後，你擁有一個可以真實運作的餐廳點餐系統：</div>
+        <div class="deliverable-checks">
+          <div class="deliverable-check">顧客端：瀏覽菜單、語音或文字點餐、AI 推薦搭配、購物車結帳，全部流程順暢</div>
+          <div class="deliverable-check">語音辨識：說出「一份牛排七分熟，兩杯紅酒」，Claude 解析為結構化訂單自動加入購物車</div>
+          <div class="deliverable-check">Stripe Checkout：用 test 信用卡完成付款，付款後訂單狀態即時更新到廚房</div>
+          <div class="deliverable-check">廚房顯示板（KDS）：新訂單即時出現，無需刷新，廚師點按完成每道菜，顧客即時看到進度</div>
+          <div class="deliverable-check">Supabase Realtime：三端狀態在 100ms 內完成同步，不需要自己架設 WebSocket</div>
+          <div class="deliverable-check">庫存管理：下單時自動扣減庫存，庫存歸零自動下架，管理端可隨時調整</div>
+        </div>
+      </div>
+
+      <div class="info-box"><p>下一堂課把 Realtime 的概念延伸到更高強度的場景：Tesla 風格叫車系統，GPS 追蹤、動態定價、AI 客服同時運作。</p></div>
+    </div>
+
+    <a href="class4.html" class="next-card">
+      <div>
+        <div class="next-label">NEXT — CLASS 04</div>
+        <div class="next-title">Tesla 風格智慧叫車系統 — GPS 追蹤 + AI 客服 + 動態定價</div>
+      </div>
+      <div class="next-arrow">→</div>
+    </a>
+  </main>
+</div>
+
+<script>
+function copyCode(btn) {
+  const pre = btn.closest('.code-block').querySelector('pre')
+  navigator.clipboard.writeText(pre.innerText).then(() => {
+    btn.textContent = 'copied!'
+    setTimeout(() => btn.textContent = 'copy', 2000)
+  })
+}
+
+const sections = document.querySelectorAll('[id]')
+const links = document.querySelectorAll('.sidebar-nav a')
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      links.forEach(l => l.classList.remove('active'))
+      const active = document.querySelector(`.sidebar-nav a[href="#${e.target.id}"]`)
+      if (active) active.classList.add('active')
+    }
+  })
+}, { rootMargin: '-60px 0px -70% 0px' })
+sections.forEach(s => obs.observe(s))
+</script>
+</body>
+</html>
